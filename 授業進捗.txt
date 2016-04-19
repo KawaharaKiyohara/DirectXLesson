@@ -1,0 +1,6 @@
+ShaderTutorial00まで進んだ。
+次回授業
+定数バッファの話をして
+前回の授業の内容を教材に記述して、01と02も記述する。
+ShaderTutorial01を行う。
+ShaderTutorial02も行けたら行く。
