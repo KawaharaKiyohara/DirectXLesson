@@ -19,13 +19,14 @@ ID3DXEffect*			g_pEffect = NULL;
 D3DXMATRIX				g_viewMatrix;		//ビュー行列。カメラ行列とも言う。
 D3DXMATRIX				g_projectionMatrix;	//プロジェクション行列。ビュー空間から射影空間に変換する行列。
 D3DXMATRIX				g_worldMatrix;		//ワールド行列。モデルローカル空間から、ワールド空間に変換する行列。
+D3DXMATRIX				g_rotationMatrix;	//回転行列。法線を回すために必要なので別途用意。
 
 LPD3DXMESH				g_pMesh = NULL;
-D3DMATERIAL9*			g_pMeshMaterials = NULL;
 LPDIRECT3DTEXTURE9*	 	g_pMeshTextures = NULL; 	// Textures for our mesh
 DWORD              	 	g_dwNumMaterials = 0L;   	// Number of mesh materials
 
 
+D3DXVECTOR4 			g_diffuseLightDirection;	//ライトの方向。
 /*!
  *@brief	シェーダーエフェクトファイル(*.fx)をロード。
  */
@@ -68,7 +69,8 @@ HRESULT InitD3D(HWND hWnd)
 	d3dpp.Windowed = TRUE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-
+	d3dpp.EnableAutoDepthStencil = TRUE;
+	d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 	// Create the D3DDevice
 	if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
@@ -89,8 +91,9 @@ HRESULT InitD3D(HWND hWnd)
 void InitProjectionMatrix()
 {
 	D3DXMatrixIdentity( &g_worldMatrix );
+	D3DXMatrixIdentity( &g_rotationMatrix );
 	
-	D3DXVECTOR3 vEyePt( 0.0f, 3.0f,-5.0f );
+	D3DXVECTOR3 vEyePt( 0.0f, 1.0f,-5.0f );
     D3DXVECTOR3 vLookatPt( 0.0f, 0.0f, 0.0f );
     D3DXVECTOR3 vUpVec( 0.0f, 1.0f, 0.0f );
     D3DXMATRIXA16 matView;
@@ -107,13 +110,32 @@ void InitProjectionMatrix()
 //-----------------------------------------------------------------------------
 VOID Cleanup()
 {
+	if (g_pMeshTextures != NULL) {
+		for (int i = 0; i < g_dwNumMaterials; i++) {
+			g_pMeshTextures[i]->Release();
+		}
+		delete[] g_pMeshTextures;
+	}
+	if (g_pMesh != NULL) {
+		g_pMesh->Release();
+	}
+	if (g_pEffect != NULL) {
+		g_pEffect->Release();
+	}
 	if (g_pd3dDevice != NULL)
 		g_pd3dDevice->Release();
 
 	if (g_pD3D != NULL)
 		g_pD3D->Release();
 }
-
+/*!
+ *@brief	ライトを更新。
+ */
+void UpdateLight()
+{
+	static int updateCount = 0;
+	g_diffuseLightDirection = D3DXVECTOR4(1.0f, 0.0f, 0.0f, 1.0f);
+}
 //-----------------------------------------------------------------------------
 // Name: Render()
 // Desc: Draws the scene
@@ -121,40 +143,68 @@ VOID Cleanup()
 VOID Render()
 {
 	// Clear the backbuffer to a blue color
-	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
+	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
+	
 	static int renderCount = 0;
+	
 	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
 	{
 		renderCount++;
 		D3DXMATRIXA16 matWorld;
     	D3DXMatrixRotationY( &g_worldMatrix, renderCount / 500.0f ); 
-    	
-		//シェーダー適用開始。
-		g_pEffect->SetTechnique("SkinModel");
-		g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
-		g_pEffect->BeginPass(0);
-
-		//定数レジスタに設定するカラー。
-		D3DXVECTOR4 color( 1.0f, 0.0f, 0.0f, 1.0f);
+    	g_rotationMatrix = g_worldMatrix;
+		//ライトを更新
+		UpdateLight();
+		// Turn on the zbuffer
+		g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+		
+		// 定数レジスタに設定するカラー。
+		D3DXVECTOR4 color(1.0f, 0.0f, 0.0f, 1.0f);
 		//ワールド行列の転送。
 		g_pEffect->SetMatrix("g_worldMatrix", &g_worldMatrix);
 		//ビュー行列の転送。
 		g_pEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
 		//プロジェクション行列の転送。
 		g_pEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
-		g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
-		
-		// Meshes are divided into subsets, one for each material. Render them in
-        // a loop
-        for( DWORD i = 0; i < g_dwNumMaterials; i++ )
-        {
-            // Draw the mesh subset
-            g_pMesh->DrawSubset( i );
-        }
-        
+		//回転行列を転送。
+		g_pEffect->SetMatrix("g_rotationMatrix", &g_rotationMatrix);
+		//ライトの向きを転送。
+		g_pEffect->SetVector("g_diffuseLightDirection", &g_diffuseLightDirection);
+		//裏面を描画
+		g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+		g_pEffect->SetTechnique("EdgeRender");
+		g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
+		g_pEffect->BeginPass(0);
+		{
+			//輪郭線抽出。
+			g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
+			for (DWORD i = 0; i < g_dwNumMaterials; i++)
+			{
+				g_pEffect->SetTexture("g_diffuseTexture", g_pMeshTextures[i]);
+				// Draw the mesh subset
+				g_pMesh->DrawSubset(i);
+			}
+		}
 		g_pEffect->EndPass();
 		g_pEffect->End();
 
+		g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+
+		g_pEffect->SetTechnique("ToonRender");
+		//シェーダー適用開始。
+		g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
+		g_pEffect->BeginPass(0);
+		{
+			g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
+			for (DWORD i = 0; i < g_dwNumMaterials; i++)
+			{
+				g_pEffect->SetTexture("g_diffuseTexture", g_pMeshTextures[i]);
+				// Draw the mesh subset
+				g_pMesh->DrawSubset(i);
+			}
+		}
+		g_pEffect->EndPass();
+		g_pEffect->End();
 		// End the scene
 		g_pd3dDevice->EndScene();
 	}
@@ -182,39 +232,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
-D3DXVECTOR3 CreateAABBFromMesh(LPD3DXMESH mesh)
-{
-	D3DXVECTOR3 min;
-	D3DXVECTOR3 max;
-	D3DXVECTOR3 size;
-	min.x = FLT_MAX;
-	min.y = FLT_MAX;
-	min.z = FLT_MAX;
-	max.x = -FLT_MAX;
-	max.y = -FLT_MAX;
-	max.z = -FLT_MAX;
-	LPDIRECT3DVERTEXBUFFER9 vb;
-	mesh->GetVertexBuffer(&vb);
-	D3DVERTEXBUFFER_DESC desc;
-	vb->GetDesc(&desc);
-	int stride = D3DXGetFVFVertexSize(desc.FVF);
-	char* pVB = NULL;
-	vb->Lock(0, desc.Size, (void**)&pVB, D3DLOCK_DISCARD);
-	int numVertex = desc.Size / stride;
-	for (int vertNo = 0; vertNo < numVertex; vertNo++) {
-		float* pVertexPos = (float*)(pVB);
-		min.x = min(min.x, pVertexPos[0]);
-		min.y = min(min.y, pVertexPos[1]);
-		min.z = min(min.z, pVertexPos[2]);
-		max.x = max(max.x, pVertexPos[0]);
-		max.y = max(max.y, pVertexPos[1]);
-		max.z = max(max.z, pVertexPos[2]);
-		pVB += stride;
-	}
-	vb->Unlock();
-	size = max - min;
-	return size;
-}
+
 /*!
  *@brief	Xファイルを読み込んでジオメトリを初期化。
  */
@@ -238,25 +256,29 @@ HRESULT InitGeometry()
             return E_FAIL;
         }
     }
+	//法線が存在するか調べる。
+	if ((g_pMesh->GetFVF() & D3DFVF_NORMAL) == 0) {
+		//法線がないので作成する。
+		ID3DXMesh* pTempMesh = NULL;
 
+		g_pMesh->CloneMeshFVF(g_pMesh->GetOptions(),
+			g_pMesh->GetFVF() | D3DFVF_NORMAL, g_pd3dDevice, &pTempMesh);
+
+		D3DXComputeNormals(pTempMesh, NULL);
+		g_pMesh->Release();
+		g_pMesh = pTempMesh;
+
+	}
     // We need to extract the material properties and texture names from the 
     // pD3DXMtrlBuffer
     D3DXMATERIAL* d3dxMaterials = ( D3DXMATERIAL* )pD3DXMtrlBuffer->GetBufferPointer();
-    g_pMeshMaterials = new D3DMATERIAL9[g_dwNumMaterials];
-    if( g_pMeshMaterials == NULL )
-        return E_OUTOFMEMORY;
+   
     g_pMeshTextures = new LPDIRECT3DTEXTURE9[g_dwNumMaterials];
     if( g_pMeshTextures == NULL )
         return E_OUTOFMEMORY;
 
     for( DWORD i = 0; i < g_dwNumMaterials; i++ )
     {
-        // Copy the material
-        g_pMeshMaterials[i] = d3dxMaterials[i].MatD3D;
-
-        // Set the ambient color for the material (D3DX does not do this)
-        g_pMeshMaterials[i].Ambient = g_pMeshMaterials[i].Diffuse;
-
         g_pMeshTextures[i] = NULL;
         if( d3dxMaterials[i].pTextureFilename != NULL &&
             lstrlenA( d3dxMaterials[i].pTextureFilename ) > 0 )
@@ -281,15 +303,12 @@ HRESULT InitGeometry()
             }
         }
     }
+
     // Done with the material buffer
-	D3DXVECTOR3 size;
-	size = CreateAABBFromMesh(g_pMesh);
     pD3DXMtrlBuffer->Release();
 
     return S_OK;
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Name: wWinMain()
@@ -310,7 +329,7 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 
 	// Create the application's window
 	HWND hWnd = CreateWindow("Shader Tutorial", "Shader Tutorial 00",
-		WS_OVERLAPPEDWINDOW, 100, 100, 300, 300,
+		WS_OVERLAPPEDWINDOW, 100, 100, 500, 500,
 		NULL, NULL, wc.hInstance, NULL);
 
 	// Initialize Direct3D
@@ -319,6 +338,8 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 		// Create the vertex buffer
 		if (SUCCEEDED(InitGeometry()))
 		{
+			ZeroMemory( g_diffuseLightDirection, sizeof(g_diffuseLightDirection) );
+			
 			InitProjectionMatrix();
 			// Show the window
 			ShowWindow(hWnd, SW_SHOWDEFAULT);
