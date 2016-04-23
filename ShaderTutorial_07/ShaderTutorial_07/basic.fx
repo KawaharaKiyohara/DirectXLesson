@@ -59,10 +59,10 @@ float4 PSMain( VS_OUTPUT In ) : COLOR
 /*!
  *@brief	エッジの頂点シェーダー。
  */
-float4 VSEdgeMain( float4 _pos : POSITION ) : POSITION
+float4 VSEdgeMain( float4 _pos : POSITION, float3 normal : NORMAL ) : POSITION
 {
 	float4 pos = _pos;
-	pos.xyz *= 1.03f;
+	pos.xyz += normal.xyz * 0.015f;
 	pos = mul( pos, g_worldMatrix );		//モデルのローカル空間からワールド空間に変換。
 	pos = mul( pos, g_viewMatrix );			//ワールド空間からビュー空間に変換。
 	pos = mul( pos, g_projectionMatrix );	//ビュー空間から射影空間に変換。
