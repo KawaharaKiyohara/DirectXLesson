@@ -162,7 +162,16 @@ VOID Cleanup()
 
 void InitProjectionMatrix()
 {
+	D3DXMatrixIdentity(&g_worldMatrix);
 
+	D3DXVECTOR3 vEyePt(0.0f, 1.0f, -4.0f);
+	D3DXVECTOR3 vLookatPt(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
+	D3DXMATRIXA16 matView;
+	D3DXMatrixLookAtLH(&g_viewMatrix, &vEyePt, &vLookatPt, &vUpVec);
+
+	D3DXMATRIXA16 matProj;
+	D3DXMatrixPerspectiveFovLH(&g_projectionMatrix, D3DX_PI / 4, 1.0f, 1.0f, 100.0f);
 }
 //-----------------------------------------------------------------------------
 // Name: Render()
