@@ -31,7 +31,7 @@ VS_OUTPUT VSMain( VS_INPUT In )
  */
 float4 PSMain( VS_OUTPUT In ) : COLOR
 {
-	return In.color * 10.0f;
+	return In.color;
 }
 
 

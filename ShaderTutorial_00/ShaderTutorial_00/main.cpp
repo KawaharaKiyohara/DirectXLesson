@@ -171,7 +171,7 @@ VOID Render()
 	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
 	{
 		//シェーダー適用開始。
-		g_pEffect->SetTechnique("ColorPrim2");
+		g_pEffect->SetTechnique("ColorPrim");
 		g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
 		g_pEffect->BeginPass(0);
 
