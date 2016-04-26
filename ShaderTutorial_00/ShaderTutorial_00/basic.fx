@@ -21,9 +21,6 @@ VS_OUTPUT VSMain( VS_INPUT In )
 	VS_OUTPUT Out;
 	Out.pos = In.pos;
 	Out.color = In.color;
-	Out.pos.x *= 2.0f;
-	Out.pos.y *= 2.0f;
-	Out.pos.z *= 2.0f;
 	return Out;
 }
 /*!
