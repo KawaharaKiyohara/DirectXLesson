@@ -14,7 +14,8 @@
 //-----------------------------------------------------------------------------
 LPDIRECT3D9             g_pD3D = NULL;		
 LPDIRECT3DDEVICE9       g_pd3dDevice = NULL;
-ID3DXEffect*			g_pEffect = NULL;	
+ID3DXEffect*			g_pTigerEffect = NULL;	
+ID3DXEffect*			g_pSpriteEffect = NULL;
 
 D3DXMATRIX				g_viewMatrix;		//ビュー行列。カメラ行列とも言う。
 D3DXMATRIX				g_projectionMatrix;	//プロジェクション行列。ビュー空間から射影空間に変換する行列。
@@ -47,7 +48,6 @@ public:
 	CSprite()
 	{
 		m_pVB = NULL;
-		m_pEffect = NULL;
 	}
 	/*!
 	 *@brief	デストラクタ。
@@ -64,10 +64,6 @@ public:
 		if(m_pVB){
 			m_pVB->Release();
 			m_pVB = NULL;
-		}
-		if( m_pEffect ){
-			m_pEffect->Release();
-			m_pEffect = NULL;
 		}
 	}
 	/*!
@@ -104,27 +100,6 @@ public:
 		memcpy(pVertices, vertices, sizeof(vertices));
 		m_pVB->Unlock();
 		
-		//スプライト描画用のシェーダーをコンパイル。
-		LPD3DXBUFFER  compileErrorBuffer = NULL;
-		//シェーダーをコンパイル。
-		HRESULT hr = D3DXCreateEffectFromFile(
-			g_pd3dDevice,
-			"sprite.fx",
-			NULL,
-			NULL,
-	#ifdef _DEBUG
-			D3DXSHADER_DEBUG,
-	#else
-			D3DXSHADER_SKIPVALIDATION,
-	#endif
-			NULL,
-			&m_pEffect,
-			&compileErrorBuffer
-			);
-		if (FAILED(hr)) {
-			MessageBox(NULL, (char*)(compileErrorBuffer->GetBufferPointer()), "error", MB_OK);
-			std::abort();
-		}
 	}
 	/*!
 	 *@brief	描画
@@ -135,29 +110,28 @@ public:
 	)
 	{
 		//シェーダー適用開始。
-		m_pEffect->SetTechnique("Sprite");
-		m_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
-		m_pEffect->BeginPass(0);
-		m_pEffect->SetTexture("g_texture", texture);
+		g_pSpriteEffect->SetTechnique("Sprite");
+		g_pSpriteEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
+		g_pSpriteEffect->BeginPass(0);
+		g_pSpriteEffect->SetTexture("g_texture", texture);
 		//ワールド行列の転送。
-		m_pEffect->SetMatrix("g_worldMatrix", &worldMatrix);
+		g_pSpriteEffect->SetMatrix("g_worldMatrix", &worldMatrix);
 		//ビュー行列の転送。
-		m_pEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
+		g_pSpriteEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
 		//プロジェクション行列の転送。
-		m_pEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
+		g_pSpriteEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
 		
-		m_pEffect->CommitChanges();
+		g_pSpriteEffect->CommitChanges();
 		
 		g_pd3dDevice->SetStreamSource(0, m_pVB, 0, sizeof(SVertex));
 		g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
 		g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
-		m_pEffect->EndPass();
-		m_pEffect->End();
+		g_pSpriteEffect->EndPass();
+		g_pSpriteEffect->End();
 	}
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVB;		//頂点バッファ。
-	ID3DXEffect*			m_pEffect;	//エフェクト。
 };
 /*!
  *@brief	レンダリングターゲット。
@@ -279,7 +253,7 @@ CRenderTarget	g_renderTarget;		//レンダリングターゲット。
 void LoadEffectFile()
 {
 	LPD3DXBUFFER  compileErrorBuffer = NULL;
-	//シェーダーをコンパイル。
+	//トラ用のシェーダーをコンパイル。
 	HRESULT hr = D3DXCreateEffectFromFile(
 		g_pd3dDevice,
 		"basic.fx",
@@ -291,7 +265,29 @@ void LoadEffectFile()
 		D3DXSHADER_SKIPVALIDATION,
 #endif
 		NULL,
-		&g_pEffect,
+		&g_pTigerEffect,
+		&compileErrorBuffer
+		);
+	if (FAILED(hr)) {
+		MessageBox(NULL, (char*)(compileErrorBuffer->GetBufferPointer()), "error", MB_OK);
+		std::abort();
+	}
+	
+	//スプライト描画用のシェーダーをコンパイル。
+	compileErrorBuffer = NULL;
+	//シェーダーをコンパイル。
+	hr = D3DXCreateEffectFromFile(
+		g_pd3dDevice,
+		"sprite.fx",
+		NULL,
+		NULL,
+#ifdef _DEBUG
+		D3DXSHADER_DEBUG,
+#else
+		D3DXSHADER_SKIPVALIDATION,
+#endif
+		NULL,
+		&g_pSpriteEffect,
 		&compileErrorBuffer
 		);
 	if (FAILED(hr)) {
@@ -362,8 +358,8 @@ VOID Cleanup()
 	if (g_pMesh != NULL) {
 		g_pMesh->Release();
 	}
-	if (g_pEffect != NULL) {
-		g_pEffect->Release();
+	if (g_pTigerEffect != NULL) {
+		g_pTigerEffect->Release();
 	}
 	if (g_pd3dDevice != NULL)
 		g_pd3dDevice->Release();
@@ -400,9 +396,9 @@ VOID Render()
 			g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 0);
 			
 			//シェーダー適用開始。
-			g_pEffect->SetTechnique("SkinModel");
-			g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
-			g_pEffect->BeginPass(0);
+			g_pTigerEffect->SetTechnique("SkinModel");
+			g_pTigerEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
+			g_pTigerEffect->BeginPass(0);
 
 			//定数レジスタに設定するカラー。
 			D3DXVECTOR4 color( 1.0f, 0.0f, 0.0f, 1.0f);
@@ -410,29 +406,27 @@ VOID Render()
     		D3DXMatrixRotationY( &mTigerMatrix, renderCount / 10.0f ); 
 
 			//ワールド行列の転送。
-			g_pEffect->SetMatrix("g_worldMatrix", &mTigerMatrix);
+			g_pTigerEffect->SetMatrix("g_worldMatrix", &mTigerMatrix);
 			//ビュー行列の転送。
-			g_pEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
+			g_pTigerEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
 			//プロジェクション行列の転送。
-			g_pEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
-			g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
+			g_pTigerEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
+			g_pTigerEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
 			
 			// Meshes are divided into subsets, one for each material. Render them in
 	        // a loop
 	        for( DWORD i = 0; i < g_dwNumMaterials; i++ )
 	        {
-				g_pEffect->SetTexture("g_diffuseTexture", g_pMeshTextures[i]);
+				g_pTigerEffect->SetTexture("g_diffuseTexture", g_pMeshTextures[i]);
 	            // Draw the mesh subset
 	            g_pMesh->DrawSubset( i );
 	        }
 	        
-
-			g_pd3dDevice->SetRenderTarget(0, renderTargetBackup);		//戻す。
-			g_pd3dDevice->SetDepthStencilSurface(depthBufferBackup);	//戻す。
-
-			g_pEffect->EndPass();
-			g_pEffect->End();
+			g_pTigerEffect->EndPass();
+			g_pTigerEffect->End();
 		}	
+		g_pd3dDevice->SetRenderTarget(0, renderTargetBackup);		//戻す。
+		g_pd3dDevice->SetDepthStencilSurface(depthBufferBackup);	//戻す。
 		//オフスクリーンレンダリングした絵を板ポリに描画する。
 		{
 			g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
