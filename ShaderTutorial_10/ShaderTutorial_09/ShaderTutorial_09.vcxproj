@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A23ED025-7283-4F51-A526-B0A1FB3E1E03}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ShaderTutorial_00</RootNamespace>
+    <RootNamespace>ShaderTutorial_03</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

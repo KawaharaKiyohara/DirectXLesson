@@ -1,17 +1,40 @@
 /*!
- *@brief	簡単なテクスチャ貼り付けシェーダー。
+ *@brief	頂点シェーダーの最も基本となる、射影変換を行うサンプル。
  */
 
 
 float4x4 g_worldMatrix;			//ワールド行列。
 float4x4 g_viewMatrix;			//ビュー行列。
 float4x4 g_projectionMatrix;	//プロジェクション行列。
+float4x4 g_rotationMatrix;		//!<回転行列。
 
-texture g_diffuseTexture;		//ディフューズテクスチャ。
-sampler g_diffuseTextureSampler = 
+#define DIFFUSE_LIGHT_NUM	4		//ディフューズライトの数。
+
+float4	g_diffuseLightDirection[DIFFUSE_LIGHT_NUM];	//ディフューズライトの方向。
+float4	g_diffuseLightColor[DIFFUSE_LIGHT_NUM];		//ディフューズライトのカラー。
+float4	g_ambientLight;								//環境光。
+
+struct VS_INPUT{
+	float4	pos				: POSITION;
+	float4	color			: COLOR0;
+	float3	normal			: NORMAL;		//法線。
+	float3	tangentNormal	: TANGENT;		//接ベクトル
+	float2	uv				: TEXCOORD0;
+};
+
+struct VS_OUTPUT{
+	float4	pos		: POSITION;
+	float4	color	: COLOR0;
+	float2	uv		: TEXCOORD0;
+	float3	normal			: TEXCOORD1;		//法線。
+	float3	tangentNormal	: TEXCOORD2;		//接ベクトル
+};
+
+texture g_diffuseMap;		//ディフューズマップ
+sampler g_diffuseMapSampler = 
 sampler_state
 {
-	Texture = <g_diffuseTexture>;
+	Texture = <g_diffuseMap>;
     MipFilter = NONE;
     MinFilter = NONE;
     MagFilter = NONE;
@@ -19,19 +42,34 @@ sampler_state
 	AddressV = Wrap;
 };
 
-struct VS_INPUT{
-	float4	pos		: POSITION;
-	float4	color	: COLOR0;
-	float2	uv		: TEXCOORD0;
+texture g_normalMap;		//法線マップ
+sampler g_normalMapSampler = 
+sampler_state
+{
+	Texture = <g_normalMap>;
+    MipFilter = NONE;
+    MinFilter = NONE;
+    MagFilter = NONE;
+    AddressU = Wrap;
+	AddressV = Wrap;
 };
 
-struct VS_OUTPUT{
-	float4	pos		: POSITION;
-	float4	color	: COLOR0;
-	float2	uv		: TEXCOORD0;
 
-};
-
+/*!
+ * @brief	ライトを計算。
+ */
+float4 CalcLight( float3 normal )
+{
+	float4 lig = 0.0f;
+	{
+		for( int i = 0; i < DIFFUSE_LIGHT_NUM; i++ ){
+			lig.xyz += max( 0.0f, dot(normal, -g_diffuseLightDirection[i].xyz) ) 
+					* g_diffuseLightColor[i].xyz;
+		}
+		lig += g_ambientLight;
+	}
+	return lig;
+}
 /*!
  *@brief	頂点シェーダー。
  */
@@ -45,6 +83,9 @@ VS_OUTPUT VSMain( VS_INPUT In )
 	Out.pos = pos;
 	Out.color = In.color;
 	Out.uv = In.uv;
+	//法線を回転。
+	Out.normal = mul(In.normal, g_rotationMatrix);
+	Out.tangentNormal = mul(In.tangentNormal, g_rotationMatrix);
 	return Out;
 }
 /*!
@@ -52,10 +93,24 @@ VS_OUTPUT VSMain( VS_INPUT In )
  */
 float4 PSMain( VS_OUTPUT In ) : COLOR
 {
-	return tex2D( g_diffuseTextureSampler, In.uv );
+	float3 normal = tex2D( g_normalMapSampler, In.uv );
+	float4x4 tangentSpaceMatrix;
+	float3 biNormal = normalize( cross( In.tangentNormal, In.normal) );
+	tangentSpaceMatrix[0] = float4( In.tangentNormal, 0.0f);
+	tangentSpaceMatrix[1] = float4( biNormal, 0.0f);
+	tangentSpaceMatrix[2] = float4( In.normal, 0.0f);
+	tangentSpaceMatrix[3] = float4( 0.0f, 0.0f, 0.0f, 1.0f );
+	//-1.0～1.0の範囲にマッピングする。
+	normal = (normal * 2.0f)- 1.0f;
+	normal = tangentSpaceMatrix[0] * normal.x + tangentSpaceMatrix[1] * normal.y + tangentSpaceMatrix[2] * normal.z; 
+	float4 lig = CalcLight(normal);
+	float4 diff = tex2D( g_diffuseMapSampler, In.uv );
+	float4 color = diff* lig;
+	return float4( color.xyz, 1.0f);
+//	return float4(normal.xyz, 1.0f);
 }
 
-technique SkinModel
+technique ColorPrim
 {
 	pass p0
 	{
