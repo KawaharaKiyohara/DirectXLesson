@@ -249,8 +249,6 @@ HRESULT InitGeometry()
         }
     }
     // Done with the material buffer
-	D3DXVECTOR3 size;
-	size = CreateAABBFromMesh(g_pMesh);
     pD3DXMtrlBuffer->Release();
 
     return S_OK;
