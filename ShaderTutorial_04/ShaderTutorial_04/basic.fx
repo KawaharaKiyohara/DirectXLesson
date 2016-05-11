@@ -52,7 +52,9 @@ VS_OUTPUT VSMain( VS_INPUT In )
  */
 float4 PSMain( VS_OUTPUT In ) : COLOR
 {
-	return tex2D( g_diffuseTextureSampler, In.uv );
+	float4 texCol = tex2D( g_diffuseTextureSampler, In.uv );
+	float t = length(texCol);
+	return tex2D( g_diffuseTextureSampler, In.uv ) ;
 }
 
 technique SkinModel
