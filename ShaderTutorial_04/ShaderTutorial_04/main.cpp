@@ -24,7 +24,6 @@ LPD3DXMESH				g_pMesh = NULL;
 LPDIRECT3DTEXTURE9*	 	g_pMeshTextures = NULL; 	// Textures for our mesh
 DWORD              	 	g_dwNumMaterials = 0L;   	// Number of mesh materials
 
-
 /*!
  *@brief	シェーダーエフェクトファイル(*.fx)をロード。
  */
@@ -139,7 +138,10 @@ VOID Render()
 	{
 		// Turn on the zbuffer
 		g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
-		
+		//半透明合成の設定。
+		g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 		renderCount++;
 		D3DXMATRIXA16 matWorld;
     	D3DXMatrixRotationY( &g_worldMatrix, renderCount / 500.0f ); 
