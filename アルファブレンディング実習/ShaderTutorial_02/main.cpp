@@ -80,7 +80,7 @@ HRESULT InitD3D(HWND hWnd)
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.EnableAutoDepthStencil = TRUE;
-	d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
+	d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 	// Create the D3DDevice
 	if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
@@ -113,9 +113,9 @@ HRESULT InitVB()
 	// Initialize three vertices for rendering a triangle
 	SVertex vertices[] =
 	{
-		{ -10000.0f,  -10000.0f, 0.0f, 1.0f, 0xffffff00, }, 
-		{ 0.0f, 10000.0f, 0.0f, 1.0f, 0xff00ff00, },
-		{ 10000.0f,  -10000.0f, 0.0f, 1.0f, 0xff00ffff, },
+		{ -1.0f,  -1.0f, 0.0f, 1.0f, 0xffffff00, }, 
+		{ 0.0f, 1.0f, 0.0f, 1.0f, 0xff00ff00, },
+		{ 1.0f,  -1.0f, 0.0f, 1.0f, 0xff00ffff, },
 	};
 
 	// Create the vertex buffer. Here we are allocating enough memory
@@ -172,7 +172,7 @@ void InitProjectionMatrix()
 	D3DXMatrixLookAtLH(&g_viewMatrix, &vEyePt, &vLookatPt, &vUpVec);
 
 	D3DXMATRIXA16 matProj;
-	D3DXMatrixPerspectiveFovLH(&g_projectionMatrix, D3DX_PI / 4, 1.0f, 1.0f, 90000.0f);
+	D3DXMatrixPerspectiveFovLH(&g_projectionMatrix, D3DX_PI / 4, 1.0f, 0.0f, 100.0f);
 }
 //-----------------------------------------------------------------------------
 // Name: Render()
@@ -188,16 +188,17 @@ VOID Render()
 	{
 		D3DXVECTOR4 colorTbl[] = {
 			D3DXVECTOR4(1.0f, 0.0f, 0.0f, 1.0f),
-			D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f),
+			D3DXVECTOR4(0.0f, 0.0f, 1.0f, 1.0f),
 		};
 		renderCount++;
 		D3DXVECTOR3 trans[] = {
-			D3DXVECTOR3(0.0f, 0.0f, 80000.0f),
-			D3DXVECTOR3(0.0f, 5000.0f, 80001.0f),
+			D3DXVECTOR3(0.0f, 0.0f, 0.0f),
+			D3DXVECTOR3(0.0f, 0.5f, 0.0f),
 		};
 		for (int i = 0; i < 2; i++) {
 			//シェーダー適用開始。
-			g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+			g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+			g_pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 			g_pEffect->SetTechnique("ColorPrim");
 			g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
 			g_pEffect->BeginPass(0);
@@ -205,10 +206,8 @@ VOID Render()
 			//定数レジスタに設定するカラー。
 			D3DXVECTOR4 color(1.0f, 0.0f, 0.0f, 1.0f);
 			
-			D3DXMATRIXA16 matTrans;
-			D3DXMatrixRotationY(&g_worldMatrix, renderCount / 50.0f);
-			D3DXMatrixTranslation(&matTrans, trans[i].x, trans[i].y, trans[i].z);
-			g_worldMatrix = g_worldMatrix * matTrans;
+
+			D3DXMatrixTranslation(&g_worldMatrix, trans[i].x, trans[i].y, trans[i].z);
 
 			//ワールド行列の転送。
 			g_pEffect->SetMatrix("g_worldMatrix", &g_worldMatrix);

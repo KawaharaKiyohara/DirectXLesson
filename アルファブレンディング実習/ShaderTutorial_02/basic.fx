@@ -37,7 +37,7 @@ VS_OUTPUT VSMain( VS_INPUT In )
  */
 float4 PSMain( VS_OUTPUT In ) : COLOR
 {
-	return g_color;
+	return In.color * g_color;
 }
 
 technique ColorPrim

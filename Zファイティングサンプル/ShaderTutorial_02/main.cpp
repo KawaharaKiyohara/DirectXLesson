@@ -197,7 +197,8 @@ VOID Render()
 		};
 		for (int i = 0; i < 2; i++) {
 			//シェーダー適用開始。
-			g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+			g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+			g_pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 			g_pEffect->SetTechnique("ColorPrim");
 			g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
 			g_pEffect->BeginPass(0);
