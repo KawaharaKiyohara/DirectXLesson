@@ -1,0 +1,6 @@
+﻿  main.cpp
+c:\github\directxlesson\shadertutorial_10\shadertutorial_09\main.cpp(112): warning C4305: '+=': truncation from 'double' to 'float'
+c:\github\directxlesson\shadertutorial_10\shadertutorial_09\main.cpp(115): warning C4305: '-=': truncation from 'double' to 'float'
+c:\github\directxlesson\shadertutorial_10\shadertutorial_09\main.cpp(118): warning C4305: '+=': truncation from 'double' to 'float'
+c:\github\directxlesson\shadertutorial_10\shadertutorial_09\main.cpp(121): warning C4305: '-=': truncation from 'double' to 'float'
+  ShaderTutorial_09.vcxproj -> C:\GitHub\DirectXLesson\ShaderTutorial_10\Debug\ShaderTutorial_09.exe
