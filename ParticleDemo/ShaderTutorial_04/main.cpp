@@ -19,6 +19,8 @@ D3DXMATRIX				g_viewMatrix;		//ビュー行列。カメラ行列とも言う。
 D3DXMATRIX				g_projectionMatrix;	//プロジェクション行列。ビュー空間から射影空間に変換する行列。
 
 CParticleEmitter		g_particleEmitter;	//パーティクルエミッター
+D3DXVECTOR3 vEyePt(0.0f, 3.0f, -10.0f);
+
 
 //-----------------------------------------------------------------------------
 // Name: InitD3D()
@@ -56,7 +58,6 @@ HRESULT InitD3D(HWND hWnd)
 void InitProjectionMatrix()
 {
 	
-	D3DXVECTOR3 vEyePt( 0.0f, 3.0f,-10.0f );
     D3DXVECTOR3 vLookatPt( 0.0f, 1.0f, 0.0f );
     D3DXVECTOR3 vUpVec( 0.0f, 1.0f, 0.0f );
     D3DXMATRIXA16 matView;
@@ -94,7 +95,28 @@ VOID Render()
 		// Turn on the zbuffer
 		g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
 	
-    	
+		D3DXMATRIX mRot;
+		//単位行列に初期化する。
+		D3DXMatrixIdentity(&mRot);			
+		if (GetAsyncKeyState(VK_LEFT)) {
+			//2.0度回転する行列を作成。
+			D3DXMatrixRotationY(&mRot, D3DXToRadian(-2.0f));
+		}
+		if (GetAsyncKeyState(VK_RIGHT)) {
+			//-2.0度回転する行列を作成。
+			D3DXMatrixRotationY(&mRot, D3DXToRadian(2.0f));
+		}
+		//作成した行列で視点を回す。
+		D3DXVECTOR4 vEyePtOut;
+		D3DXVec3Transform(&vEyePtOut, &vEyePt, &mRot);
+		vEyePt.x = vEyePtOut.x;
+		vEyePt.y = vEyePtOut.y;
+		vEyePt.z = vEyePtOut.z;
+		//カメラ行列の再計算。
+		D3DXVECTOR3 vLookatPt(0.0f, 1.0f, 0.0f);
+		D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
+		D3DXMatrixLookAtLH(&g_viewMatrix, &vEyePt, &vLookatPt, &vUpVec);
+
 		g_particleEmitter.Render(g_viewMatrix, g_projectionMatrix);
 		// End the scene
 		g_pd3dDevice->EndScene();

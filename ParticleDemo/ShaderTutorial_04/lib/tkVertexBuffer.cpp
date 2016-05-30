@@ -42,6 +42,7 @@ void CVertexBuffer::Create(
 		void* pDstVertexBuffer;
 		hr = m_pVB->Lock( 0, 0, &pDstVertexBuffer, D3DLOCK_DISCARD );
 		//まるっとコピー。
+
 		memcpy( pDstVertexBuffer, pSrcVertexBuffer, m_size);
 		m_pVB->Unlock();
 	}
