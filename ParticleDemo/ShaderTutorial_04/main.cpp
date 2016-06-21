@@ -176,6 +176,7 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 		param.w = 0.5f;
 		param.h = 0.5f;
 		param.intervalTime = 0.2f;
+		param.initSpeed = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 		g_particleEmitter.Init(param);
 		InitProjectionMatrix();
 		// Show the window

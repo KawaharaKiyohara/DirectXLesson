@@ -15,6 +15,8 @@ class CParticle{
 	CPrimitive			primitive;			//!<プリミティブ。
 	LPDIRECT3DTEXTURE9	texture;			//!<テクスチャ。
 	ID3DXEffect*		shaderEffect;		//!<シェーダーエフェクト。
+	D3DXVECTOR3			moveSpeed;			//!<速度。
+	D3DXVECTOR3			position;			//!<座標。
 public:
 	CParticle();
 	~CParticle();

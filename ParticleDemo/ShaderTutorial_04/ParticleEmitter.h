@@ -23,6 +23,8 @@ struct SParicleEmitParameter {
 	float w;							//!<パーティクルの幅。
 	float h;							//!<パーティクルの高さ。
 	float intervalTime;					//!<パーティクルの発生間隔。
+	D3DXVECTOR3 initSpeed;				//!<初速度
+
 };
 /*!
  * @brief	パーティクルの発生機

@@ -39,7 +39,14 @@ void CParticle::Init( const SParicleEmitParameter& param )
 	float halfH = param.h * 0.5f;
 	
 	D3DXVECTOR4 uv(0.0f, 0.0f, 1.0f, 1.0f);
-	
+	moveSpeed = param.initSpeed;
+
+	position = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	float add = ((rand() % 255) - 128) / 128.0f;
+	moveSpeed.x += add * 0.3f;
+	moveSpeed.y += add * 0.3f;
+	moveSpeed.z += add * 0.3f;
+
 	SShapeVertex_PT vb[] = {
 		{
 			-halfW, halfH, 0.0f, 1.0f,
@@ -96,6 +103,9 @@ void CParticle::Init( const SParicleEmitParameter& param )
 }
 void CParticle::Update()
 {
+	float deltaTime = 1.0f / 60.0f;
+	D3DXVECTOR3 add = moveSpeed * deltaTime;
+	position += add;
 #if 0
 	position.Add(addPos);
 	CMatrix mTrans;
@@ -143,8 +153,10 @@ void CParticle::Update()
 }
 void CParticle::Render(const D3DXMATRIX& viewMatrix, const D3DXMATRIX& projMatrix)
 {
-	D3DXMATRIX m;
-	m = viewMatrix * projMatrix;
+	D3DXMATRIX m, mTrans;
+	D3DXMatrixTranslation(&mTrans, position.x, position.y, position.z);
+
+	m = mTrans * viewMatrix * projMatrix;
 
 	g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
