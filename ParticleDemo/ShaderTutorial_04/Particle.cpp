@@ -158,10 +158,16 @@ void CParticle::Render(const D3DXMATRIX& viewMatrix, const D3DXMATRIX& projMatri
 
 	m = mTrans * viewMatrix * projMatrix;
 
-	g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+/*	g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	shaderEffect->SetTechnique("ColorTexPrimTrans");
+	g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);*/
+	//アルファブレンディングを有効にする。
+	g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+	g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+
+
+	shaderEffect->SetTechnique("ColorTexPrimAdd");
 	
 	shaderEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
 	shaderEffect->BeginPass( 0);
@@ -170,6 +176,7 @@ void CParticle::Render(const D3DXMATRIX& viewMatrix, const D3DXMATRIX& projMatri
 	shaderEffect->SetValue("g_mWVP", &m, sizeof(m));
 	shaderEffect->SetTexture("g_texture", texture);
 	shaderEffect->CommitChanges();
+
 	g_pd3dDevice->SetStreamSource(0, primitive.GetVertexBuffer()->GetBody(), 0, primitive.GetVertexBuffer()->GetStride());
 	g_pd3dDevice->SetIndices(primitive.GetIndexBuffer()->GetBody());
 	g_pd3dDevice->SetVertexDeclaration(primitive.GetVertexDecl());

@@ -48,7 +48,7 @@ float4 PSMainTrans( VS_OUTPUT In ) : COLOR0
 float4 PSMainAdd( VS_OUTPUT In ) : COLOR0
 {
 	float4 tex = tex2D(g_textureSampler, In.uv);
-	return float4(tex.xyz * g_alpha, 1.0f/g_brightness );
+	return float4(tex.xyz*tex.a, 1.0f/g_brightness );
 }
 /*!
  * @brief	半透明合成用のテクニック。
