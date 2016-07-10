@@ -62,13 +62,14 @@ float4 PSMain( VS_OUTPUT In ) : COLOR
 {
 	//ライトを計算。
 	float4 lig = 0.0f;
-	{
-		for( int i = 0; i < DIFFUSE_LIGHT_NUM; i++ ){
-			lig.xyz += max( 0.0f, dot(In.normal.xyz, -g_diffuseLightDirection[i].xyz) ) 
-					* g_diffuseLightColor[i].xyz;
-		}
-		lig += g_ambientLight;
-	}
+	lig.xyz = g_ambientLight;
+	//実習課題。
+	//ここでライティングの計算を行いなさい。
+	//法線はIn.normal.xyz、ライトの向きはg_diffuseLightDirection[0].xyz、
+	//ライトのカラーはg_diffuseLightColor[0].xyzとなる。
+	//内積はdot関数、最大値を取得する関数はmax関数になる。
+	//関数の使い方はインターネットなどでヘルプを調べるなどして自力で調べてみてください。
+	
 	float4 color = tex2D( g_diffuseTextureSampler, In.uv );
 	color.xyz *= lig;
 	return color;
