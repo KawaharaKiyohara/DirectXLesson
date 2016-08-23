@@ -24,7 +24,7 @@ VS_OUTPUT VSMain( VS_INPUT In )
 	return Out;
 }
 /*!
- *@brief	頂点シェーダー。
+ *@brief	ピクセルシェーダー。
  */
 float4 PSMain( VS_OUTPUT In ) : COLOR
 {
