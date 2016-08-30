@@ -136,12 +136,6 @@ VOID Render()
 
 		//定数レジスタに設定するカラー。
 		D3DXVECTOR4 color( 1.0f, 0.0f, 0.0f, 1.0f);
-		//ワールド行列の転送。
-		g_pEffect->SetMatrix("g_worldMatrix", &g_worldMatrix);
-		//ビュー行列の転送。
-		g_pEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
-		//プロジェクション行列の転送。
-		g_pEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
 		g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
 		
 		// Meshes are divided into subsets, one for each material. Render them in
