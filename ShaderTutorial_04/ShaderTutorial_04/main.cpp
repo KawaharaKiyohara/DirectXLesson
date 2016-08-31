@@ -136,8 +136,6 @@ VOID Render()
 	static int renderCount = 0;
 	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
 	{
-		// Turn on the zbuffer
-		g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
 		//”¼“§–¾‡¬‚ÌÝ’èB
 		g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
