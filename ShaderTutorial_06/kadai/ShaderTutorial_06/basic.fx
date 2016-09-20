@@ -78,8 +78,15 @@ float4 PSMain( VS_OUTPUT In ) : COLOR
 {
 	//ライトを計算。
 	float4 lig = 0.0f;
-	lig.xyz = CalcDiffuse( In.normal );					//ディフューズライトを計算。
+	//ディフューズライトを計算。
+	lig.xyz = CalcDiffuse( In.normal );					
+	//ここにスペキュラライトの実装を記述しなさい。
+	//視点のシェーダー定数は存在しないので、自分で追加を行うように。
+	//モデルのワールド頂点座標はIn.worldPos、ワールド法線はIn.normal。
+	//ライトの方向はg_diffuseLightDirection[0]とする。
 	
+	
+	//アンビエントライトを加算。
 	lig += g_ambientLight;
 	float4 color = tex2D( g_diffuseTextureSampler, In.uv );
 	color.xyz *= lig;

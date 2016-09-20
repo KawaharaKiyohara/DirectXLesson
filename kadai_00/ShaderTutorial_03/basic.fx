@@ -2,6 +2,12 @@
  *@brief	シンプルな射影変換シェーダー。
  */
 
+float4x4 mWorld;	//ワールド行列。
+float4x4 mView;		//ビュー行列。
+float4x4 mProj;		//プロジェクション行列。
+
+
+
 struct VS_INPUT{
 	float4	pos		: POSITION;
 	float4	color	: COLOR0;
@@ -18,12 +24,15 @@ struct VS_OUTPUT{
 VS_OUTPUT VSMain( VS_INPUT In )
 {
 	VS_OUTPUT Out;
-	Out.pos = In.pos;
+	float4 pos = mul(In.pos, mWorld);
+	pos = mul(pos, mView);
+	pos = mul(pos, mProj);
+	Out.pos = pos;
 	Out.color = In.color;
 	return Out;
 }
 /*!
- *@brief	頂点シェーダー。
+ *@brief	ピクセルシェーダー。
  */
 float4 PSMain( VS_OUTPUT In ) : COLOR
 {

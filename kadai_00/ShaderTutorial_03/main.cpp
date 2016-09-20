@@ -134,10 +134,16 @@ VOID Render()
 		g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
 		g_pEffect->BeginPass(0);
 
+
+
 		//定数レジスタに設定するカラー。
 		D3DXVECTOR4 color( 1.0f, 0.0f, 0.0f, 1.0f);
 		g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
+
 		
+		g_pEffect->SetMatrix("mWorld", &g_worldMatrix);
+		g_pEffect->SetMatrix("mView", &g_viewMatrix);
+		g_pEffect->SetMatrix("mProj", &g_projectionMatrix);
 		// Meshes are divided into subsets, one for each material. Render them in
         // a loop
         for( DWORD i = 0; i < g_dwNumMaterials; i++ )
