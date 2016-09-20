@@ -30,6 +30,7 @@ static const int		LIGHT_NUM = 4;
 D3DXVECTOR4 			g_diffuseLightDirection[LIGHT_NUM];	//ライトの方向。
 D3DXVECTOR4				g_diffuseLightColor[LIGHT_NUM];		//ライトの色。
 D3DXVECTOR4				g_ambientLight;						//環境光
+D3DXVECTOR3				vEyePt;								//視点。
 /*!
  *@brief	シェーダーエフェクトファイル(*.fx)をロード。
  */
@@ -96,7 +97,7 @@ void InitProjectionMatrix()
 	D3DXMatrixIdentity( &g_worldMatrix );
 	D3DXMatrixIdentity( &g_rotationMatrix );
 	
-	D3DXVECTOR3 vEyePt( 0.0f, 3.0f,-5.0f );
+	vEyePt = D3DXVECTOR3(0.0f, 3.0f, -5.0f);
     D3DXVECTOR3 vLookatPt( 0.0f, 0.0f, 0.0f );
     D3DXVECTOR3 vUpVec( 0.0f, 1.0f, 0.0f );
     D3DXMATRIXA16 matView;
@@ -132,24 +133,40 @@ VOID Cleanup()
 		g_pD3D->Release();
 }
 /*!
+*@brief	ライトを初期化。
+*/
+void InitLight()
+{
+	g_diffuseLightDirection[0] = D3DXVECTOR4(1.0f, 0.0f, 0.0f, 0.0f);
+
+	//ディフューズライト。
+	g_diffuseLightColor[0] = D3DXVECTOR4(0.5f, 0.5f, 0.5f, 2.0f);
+
+	//環境光。
+	g_ambientLight = D3DXVECTOR4(0.1f, 0.1f, 0.1f, 1.0f);
+}
+/*!
  *@brief	ライトを更新。
  */
 void UpdateLight()
 {
-	static int updateCount = 0;
-	g_diffuseLightDirection[0] = D3DXVECTOR4(1.0f, 0.0f, 0.0f,0.0f),
-	g_diffuseLightDirection[1] = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f),
-	g_diffuseLightDirection[2] = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f),
-	g_diffuseLightDirection[3] = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f),
-	
-	//ディフューズライト。
-	g_diffuseLightColor[0] = D3DXVECTOR4(1.0f, 0.0f, 0.0f, 10.0f);
-	g_diffuseLightColor[1] = D3DXVECTOR4(0.2f, 0.2f, 0.2f, 1.0f);
-//	g_diffuseLightColor[2] = D3DXVECTOR4(0.2f, 0.2f, 0.2f, 1.0f);
-//	g_diffuseLightColor[3] = D3DXVECTOR4(0.2f, 0.2f, 0.2f, 1.0f);
+	D3DXMATRIX mRot;
+	//単位行列に初期化する。
+	D3DXMatrixIdentity(&mRot);
+	//ライトを回す。
+	if (GetAsyncKeyState(VK_UP)) {
+		D3DXMatrixRotationX(&mRot, 0.1f);
+	}
+	else if (GetAsyncKeyState(VK_DOWN)) {
+		D3DXMatrixRotationX(&mRot, -0.1f);
 
-	//環境光。
-	g_ambientLight = D3DXVECTOR4(0.1f, 0.1f, 0.1f, 1.0f);
+	}else if (GetAsyncKeyState(VK_LEFT)) {
+		D3DXMatrixRotationY(&mRot, 0.1f);
+	}
+	else if (GetAsyncKeyState(VK_RIGHT)) {
+		D3DXMatrixRotationY(&mRot, -0.1f);
+	}
+	D3DXVec4Transform(&g_diffuseLightDirection[0], &g_diffuseLightDirection[0], &mRot);
 }
 //-----------------------------------------------------------------------------
 // Name: Render()
@@ -160,13 +177,10 @@ VOID Render()
 	// Clear the backbuffer to a blue color
 	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
 	
-	static int renderCount = 0;
 	
 	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
 	{
-		renderCount++;
-		D3DXMATRIXA16 matWorld;
-    	D3DXMatrixRotationY( &g_worldMatrix, renderCount / 500.0f ); 
+		D3DXMatrixIdentity(&g_worldMatrix);
     	g_rotationMatrix = g_worldMatrix;
 		//ライトを更新
 		UpdateLight();
@@ -192,6 +206,8 @@ VOID Render()
 		g_pEffect->SetVectorArray("g_diffuseLightDirection", g_diffuseLightDirection, LIGHT_NUM );
 		//ライトのカラーを転送。
 		g_pEffect->SetVectorArray("g_diffuseLightColor", g_diffuseLightColor, LIGHT_NUM );
+		//視点を転送
+		g_pEffect->SetVector("g_eyePos", (D3DXVECTOR4*)&vEyePt);
 		//環境光を設定。
 		g_pEffect->SetVector("g_ambientLight", &g_ambientLight);
 
@@ -245,18 +261,18 @@ HRESULT InitGeometry()
     LPD3DXBUFFER pD3DXMtrlBuffer;
 
     // Load the mesh from the specified file
-    if( FAILED( D3DXLoadMeshFromX( "Tiger.x", D3DXMESH_SYSTEMMEM,
+    if( FAILED( D3DXLoadMeshFromX( "sphere.x", D3DXMESH_SYSTEMMEM,
                                    g_pd3dDevice, NULL,
                                    &pD3DXMtrlBuffer, NULL, &g_dwNumMaterials,
                                    &g_pMesh ) ) )
     {
         // If model is not in current folder, try parent folder
-        if( FAILED( D3DXLoadMeshFromX( "..\\Tiger.x", D3DXMESH_SYSTEMMEM,
+        if( FAILED( D3DXLoadMeshFromX( "..\\sphere.x", D3DXMESH_SYSTEMMEM,
                                        g_pd3dDevice, NULL,
                                        &pD3DXMtrlBuffer, NULL, &g_dwNumMaterials,
                                        &g_pMesh ) ) )
         {
-            MessageBox( NULL, "Could not find tiger.x", "Meshes.exe", MB_OK );
+            MessageBox( NULL, "Could not find sphere.x", "Meshes.exe", MB_OK );
             return E_FAIL;
         }
     }
@@ -345,6 +361,7 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 			ZeroMemory( g_diffuseLightDirection, sizeof(g_diffuseLightDirection) );
 			ZeroMemory( g_diffuseLightColor, sizeof(g_diffuseLightColor) );
 			
+			InitLight();
 			InitProjectionMatrix();
 			// Show the window
 			ShowWindow(hWnd, SW_SHOWDEFAULT);
