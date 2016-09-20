@@ -1,4 +1,0 @@
-﻿  main.cpp
-c:\github\directxlesson\shadertutorial_10\shadertutorial_09\main.cpp(353): warning C4018: '<': signed/unsigned mismatch
-c:\github\directxlesson\shadertutorial_10\shadertutorial_09\main.cpp(103): warning C4715: 'CSprite::Init': not all control paths return a value
-  ShaderTutorial_09.vcxproj -> C:\GitHub\DirectXLesson\ShaderTutorial_10\x64\Debug\ShaderTutorial_09.exe
