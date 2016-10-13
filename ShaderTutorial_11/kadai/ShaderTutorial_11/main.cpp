@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include "Model.h"
 #include "RenderTarget.h"
-#include "ShadowMap.h"
 
 //-----------------------------------------------------------------------------
 // グローバル変数。
@@ -23,7 +22,6 @@ D3DXMATRIX				g_worldMatrix;		//ワールド行列。モデルローカル空間から、ワールド空
 
 CModel			g_tiger;			//虎。
 CModel			g_ground;			//地面。
-CShadowMap g_shadowMap;	//シャドウマップ。
 
 /*!
  *@brief	シェーダーエフェクトファイル(*.fx)をロード。
@@ -122,15 +120,6 @@ VOID Cleanup()
 //-----------------------------------------------------------------------------
 VOID Render()
 {
-	//ライトビューの注視点は虎。視点は虎の座標からY方向に+2。
-	//これは各自のゲームで調整するように。
-	D3DXVECTOR3 target = g_tiger.GetPosition();
-	D3DXVECTOR3 viewPos = target;
-	viewPos.y += 4.0f;
-	g_shadowMap.SetLightViewPosition(viewPos);
-	g_shadowMap.SetLightViewTarget(target);
-	g_shadowMap.Update();
-
 	//虎を回す。
 	static int renderCount = 0;
 	renderCount++;
@@ -144,11 +133,9 @@ VOID Render()
 		// Turn on the zbuffer
 		g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 
-		//シャドウマップにレンダリング。
-		g_shadowMap.Draw();
 		//虎を描画。
-		g_tiger.Draw(&g_viewMatrix, &g_projectionMatrix, false, false);
-		g_ground.Draw(&g_viewMatrix, &g_projectionMatrix, false, true);
+		g_tiger.Draw(&g_viewMatrix, &g_projectionMatrix);
+		g_ground.Draw(&g_viewMatrix, &g_projectionMatrix);
 				
 		// End the scene
 		g_pd3dDevice->EndScene();
@@ -223,7 +210,6 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 		// Create the vertex buffer
 		if (InitGeometry() == true)
 		{
-			g_shadowMap.Init();
 			InitViewProjectionMatrix();
 			
 			// Show the window
