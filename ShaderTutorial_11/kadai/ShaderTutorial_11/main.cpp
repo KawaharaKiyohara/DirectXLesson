@@ -1,28 +1,27 @@
 /*!
  *@brief	シェーダーのチュートリアル00
  */
-#include <d3d9.h>
-#include <d3dx9effect.h>
+#include "global.h"
 #pragma warning( disable : 4996 ) 
 #include <strsafe.h>
 #pragma warning( default : 4996 )
 #include <cstdlib>
-
+#include "Model.h"
+#include "RenderTarget.h"
 
 //-----------------------------------------------------------------------------
 // グローバル変数。
 //-----------------------------------------------------------------------------
 LPDIRECT3D9             g_pD3D = NULL;		
 LPDIRECT3DDEVICE9       g_pd3dDevice = NULL;
-ID3DXEffect*			g_pEffect = NULL;	
+ID3DXEffect*			g_pModelEffect = NULL;	
 
 D3DXMATRIX				g_viewMatrix;		//ビュー行列。カメラ行列とも言う。
 D3DXMATRIX				g_projectionMatrix;	//プロジェクション行列。ビュー空間から射影空間に変換する行列。
 D3DXMATRIX				g_worldMatrix;		//ワールド行列。モデルローカル空間から、ワールド空間に変換する行列。
 
-LPD3DXMESH				g_pMesh = NULL;
-LPDIRECT3DTEXTURE9*	 	g_pMeshTextures = NULL; 	// Textures for our mesh
-DWORD              	 	g_dwNumMaterials = 0L;   	// Number of mesh materials
+CModel			g_tiger;			//虎。
+CModel			g_ground;			//地面。
 
 /*!
  *@brief	シェーダーエフェクトファイル(*.fx)をロード。
@@ -30,7 +29,7 @@ DWORD              	 	g_dwNumMaterials = 0L;   	// Number of mesh materials
 void LoadEffectFile()
 {
 	LPD3DXBUFFER  compileErrorBuffer = NULL;
-	//シェーダーをコンパイル。
+	//トラ用のシェーダーをコンパイル。
 	HRESULT hr = D3DXCreateEffectFromFile(
 		g_pd3dDevice,
 		"basic.fx",
@@ -42,13 +41,13 @@ void LoadEffectFile()
 		D3DXSHADER_SKIPVALIDATION,
 #endif
 		NULL,
-		&g_pEffect,
+		&g_pModelEffect,
 		&compileErrorBuffer
 		);
 	if (FAILED(hr)) {
 		MessageBox(NULL, (char*)(compileErrorBuffer->GetBufferPointer()), "error", MB_OK);
 		std::abort();
-	}
+	}	
 }
 //-----------------------------------------------------------------------------
 // Name: InitD3D()
@@ -85,10 +84,8 @@ HRESULT InitD3D(HWND hWnd)
 /*!
  *@brief	プロジェクション行列の初期化。
  */
-void InitProjectionMatrix()
-{
-	D3DXMatrixIdentity( &g_worldMatrix );
-	
+void InitViewProjectionMatrix()
+{	
 	D3DXVECTOR3 vEyePt( 0.0f, 3.0f,-5.0f );
     D3DXVECTOR3 vLookatPt( 0.0f, 0.0f, 0.0f );
     D3DXVECTOR3 vUpVec( 0.0f, 1.0f, 0.0f );
@@ -96,7 +93,7 @@ void InitProjectionMatrix()
     D3DXMatrixLookAtLH( &g_viewMatrix, &vEyePt, &vLookatPt, &vUpVec );
     
     D3DXMATRIXA16 matProj;
-    D3DXMatrixPerspectiveFovLH( &g_projectionMatrix, D3DX_PI / 4, 1.0f, 1.0f, 100.0f );
+    D3DXMatrixPerspectiveFovLH( &g_projectionMatrix,D3DXToRadian(60.0f), 1.0f, 1.0f, 100.0f );
 }
 
 
@@ -106,17 +103,9 @@ void InitProjectionMatrix()
 //-----------------------------------------------------------------------------
 VOID Cleanup()
 {
-	if (g_pMeshTextures != NULL) {
-		for (int i = 0; i < g_dwNumMaterials; i++) {
-			g_pMeshTextures[i]->Release();
-		}
-		delete[] g_pMeshTextures;
-	}
-	if (g_pMesh != NULL) {
-		g_pMesh->Release();
-	}
-	if (g_pEffect != NULL) {
-		g_pEffect->Release();
+	g_tiger.Release();
+	if (g_pModelEffect != NULL) {
+		g_pModelEffect->Release();
 	}
 	if (g_pd3dDevice != NULL)
 		g_pd3dDevice->Release();
@@ -131,47 +120,23 @@ VOID Cleanup()
 //-----------------------------------------------------------------------------
 VOID Render()
 {
+	//虎を回す。
+	static int renderCount = 0;
+	renderCount++;
+	D3DXQUATERNION qRot;
+	D3DXQuaternionRotationAxis(&qRot, &D3DXVECTOR3(0.0f, 1.0f, 0.0f), renderCount * 0.01f);
+	g_tiger.SetRotation(qRot);
 	// Clear the backbuffer to a blue color
 	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
-	static int renderCount = 0;
 	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
 	{
-		//半透明合成の設定。
-		g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		renderCount++;
-		D3DXMATRIXA16 matWorld;
-    	D3DXMatrixRotationY( &g_worldMatrix, renderCount / 500.0f ); 
-    	
-		
-		//シェーダー適用開始。
-		g_pEffect->SetTechnique("SkinModel");
-		g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
-		g_pEffect->BeginPass(0);
+		// Turn on the zbuffer
+		g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 
-		//定数レジスタに設定するカラー。
-		D3DXVECTOR4 color( 1.0f, 0.0f, 0.0f, 1.0f);
-		//ワールド行列の転送。
-		g_pEffect->SetMatrix("g_worldMatrix", &g_worldMatrix);
-		//ビュー行列の転送。
-		g_pEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
-		//プロジェクション行列の転送。
-		g_pEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
-		g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
-		
-		// Meshes are divided into subsets, one for each material. Render them in
-        // a loop
-        for( DWORD i = 0; i < g_dwNumMaterials; i++ )
-        {
-			g_pEffect->SetTexture("g_diffuseTexture", g_pMeshTextures[i]);
-            // Draw the mesh subset
-            g_pMesh->DrawSubset( i );
-        }
-        
-		g_pEffect->EndPass();
-		g_pEffect->End();
-
+		//虎を描画。
+		g_tiger.Draw(&g_viewMatrix, &g_projectionMatrix);
+		g_ground.Draw(&g_viewMatrix, &g_projectionMatrix);
+				
 		// End the scene
 		g_pd3dDevice->EndScene();
 	}
@@ -203,66 +168,18 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 /*!
  *@brief	Xファイルを読み込んでジオメトリを初期化。
  */
-HRESULT InitGeometry()
+bool InitGeometry()
 {
-    LPD3DXBUFFER pD3DXMtrlBuffer;
-
-    // Load the mesh from the specified file
-    if( FAILED( D3DXLoadMeshFromX( "Tiger.x", D3DXMESH_SYSTEMMEM,
-                                   g_pd3dDevice, NULL,
-                                   &pD3DXMtrlBuffer, NULL, &g_dwNumMaterials,
-                                   &g_pMesh ) ) )
-    {
-        // If model is not in current folder, try parent folder
-        if( FAILED( D3DXLoadMeshFromX( "..\\Tiger.x", D3DXMESH_SYSTEMMEM,
-                                       g_pd3dDevice, NULL,
-                                       &pD3DXMtrlBuffer, NULL, &g_dwNumMaterials,
-                                       &g_pMesh ) ) )
-        {
-            MessageBox( NULL, "Could not find tiger.x", "Meshes.exe", MB_OK );
-            return E_FAIL;
-        }
-    }
-
-    // We need to extract the material properties and texture names from the 
-    // pD3DXMtrlBuffer
-    D3DXMATERIAL* d3dxMaterials = ( D3DXMATERIAL* )pD3DXMtrlBuffer->GetBufferPointer();
-   
-    g_pMeshTextures = new LPDIRECT3DTEXTURE9[g_dwNumMaterials];
-    if( g_pMeshTextures == NULL )
-        return E_OUTOFMEMORY;
-
-    for( DWORD i = 0; i < g_dwNumMaterials; i++ )
-    {
-        g_pMeshTextures[i] = NULL;
-        if( d3dxMaterials[i].pTextureFilename != NULL &&
-            lstrlenA( d3dxMaterials[i].pTextureFilename ) > 0 )
-        {
-            // Create the texture
-            if( FAILED( D3DXCreateTextureFromFileA( g_pd3dDevice,
-                                                    d3dxMaterials[i].pTextureFilename,
-                                                    &g_pMeshTextures[i] ) ) )
-            {
-                // If texture is not in current folder, try parent folder
-                const CHAR* strPrefix = "..\\";
-                CHAR strTexture[MAX_PATH];
-                strcpy_s( strTexture, MAX_PATH, strPrefix );
-                strcat_s( strTexture, MAX_PATH, d3dxMaterials[i].pTextureFilename );
-                // If texture is not in current folder, try parent folder
-                if( FAILED( D3DXCreateTextureFromFileA( g_pd3dDevice,
-                                                        strTexture,
-                                                        &g_pMeshTextures[i] ) ) )
-                {
-                    MessageBox( NULL, "Could not find texture map", "Meshes.exe", MB_OK );
-                }
-            }
-        }
-    }
-
-    // Done with the material buffer
-    pD3DXMtrlBuffer->Release();
-
-    return S_OK;
+	if ( g_tiger.Load("tiger.x") == false ) {
+		return false;
+	}
+	if ( g_ground.Load("ground.x") == false ) {
+		return false;
+	}
+	g_tiger.SetPosition(D3DXVECTOR3(0.0f, 2.0f, 0.0f));
+	g_ground.SetPosition(D3DXVECTOR3(0.0f, -1.0f, 0.0f));
+	g_ground.SetScale(D3DXVECTOR3(5.0f, 5.0f, 5.0f));
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -291,9 +208,10 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 	if (SUCCEEDED(InitD3D(hWnd)))
 	{
 		// Create the vertex buffer
-		if (SUCCEEDED(InitGeometry()))
+		if (InitGeometry() == true)
 		{
-			InitProjectionMatrix();
+			InitViewProjectionMatrix();
+			
 			// Show the window
 			ShowWindow(hWnd, SW_SHOWDEFAULT);
 			UpdateWindow(hWnd);

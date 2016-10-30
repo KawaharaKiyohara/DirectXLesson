@@ -21,9 +21,6 @@
     <ClCompile Include="Model.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowMap.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RenderTarget.h">
@@ -33,9 +30,6 @@
       <Filter>ソース ファイル</Filter>
     </ClInclude>
     <ClInclude Include="global.h">
-      <Filter>ソース ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="ShadowMap.h">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>

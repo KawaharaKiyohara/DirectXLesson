@@ -19,11 +19,18 @@ ID3DXEffect*			g_pEffect = NULL;
 D3DXMATRIX				g_viewMatrix;		//ビュー行列。カメラ行列とも言う。
 D3DXMATRIX				g_projectionMatrix;	//プロジェクション行列。ビュー空間から射影空間に変換する行列。
 D3DXMATRIX				g_worldMatrix;		//ワールド行列。モデルローカル空間から、ワールド空間に変換する行列。
+D3DXMATRIX				g_rotationMatrix;	//回転行列。法線を回すために必要なので別途用意。
 
 LPD3DXMESH				g_pMesh = NULL;
 LPDIRECT3DTEXTURE9*	 	g_pMeshTextures = NULL; 	// Textures for our mesh
 DWORD              	 	g_dwNumMaterials = 0L;   	// Number of mesh materials
 
+
+static const int		LIGHT_NUM = 4;
+D3DXVECTOR4 			g_diffuseLightDirection[LIGHT_NUM];	//ライトの方向。
+D3DXVECTOR4				g_diffuseLightColor[LIGHT_NUM];		//ライトの色。
+D3DXVECTOR4				g_ambientLight;						//環境光
+D3DXVECTOR3				vEyePt;								//視点。
 /*!
  *@brief	シェーダーエフェクトファイル(*.fx)をロード。
  */
@@ -88,8 +95,9 @@ HRESULT InitD3D(HWND hWnd)
 void InitProjectionMatrix()
 {
 	D3DXMatrixIdentity( &g_worldMatrix );
+	D3DXMatrixIdentity( &g_rotationMatrix );
 	
-	D3DXVECTOR3 vEyePt( 0.0f, 3.0f,-5.0f );
+	D3DXVECTOR3 vEyePt(0.0f, 3.0f, -5.0f);
     D3DXVECTOR3 vLookatPt( 0.0f, 0.0f, 0.0f );
     D3DXVECTOR3 vUpVec( 0.0f, 1.0f, 0.0f );
     D3DXMATRIXA16 matView;
@@ -124,7 +132,42 @@ VOID Cleanup()
 	if (g_pD3D != NULL)
 		g_pD3D->Release();
 }
+/*!
+*@brief	ライトを初期化。
+*/
+void InitLight()
+{
+	g_diffuseLightDirection[0] = D3DXVECTOR4(1.0f, 0.0f, 0.0f, 0.0f);
 
+	//ディフューズライト。
+	g_diffuseLightColor[0] = D3DXVECTOR4(0.5f, 0.5f, 0.5f, 2.0f);
+
+	//環境光。
+	g_ambientLight = D3DXVECTOR4(0.1f, 0.1f, 0.1f, 1.0f);
+}
+/*!
+ *@brief	ライトを更新。
+ */
+void UpdateLight()
+{
+	D3DXMATRIX mRot;
+	//単位行列に初期化する。
+	D3DXMatrixIdentity(&mRot);
+	//ライトを回す。
+	if (GetAsyncKeyState(VK_UP)) {
+		D3DXMatrixRotationX(&mRot, 0.1f);
+	}
+	else if (GetAsyncKeyState(VK_DOWN)) {
+		D3DXMatrixRotationX(&mRot, -0.1f);
+
+	}else if (GetAsyncKeyState(VK_LEFT)) {
+		D3DXMatrixRotationY(&mRot, 0.1f);
+	}
+	else if (GetAsyncKeyState(VK_RIGHT)) {
+		D3DXMatrixRotationY(&mRot, -0.1f);
+	}
+	D3DXVec4Transform(&g_diffuseLightDirection[0], &g_diffuseLightDirection[0], &mRot);
+}
 //-----------------------------------------------------------------------------
 // Name: Render()
 // Desc: Draws the scene
@@ -133,17 +176,16 @@ VOID Render()
 {
 	// Clear the backbuffer to a blue color
 	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
-	static int renderCount = 0;
+	
+	
 	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
 	{
-		//半透明合成の設定。
-		g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		renderCount++;
-		D3DXMATRIXA16 matWorld;
-    	D3DXMatrixRotationY( &g_worldMatrix, renderCount / 500.0f ); 
-    	
+		D3DXMatrixIdentity(&g_worldMatrix);
+    	g_rotationMatrix = g_worldMatrix;
+		//ライトを更新
+		UpdateLight();
+		// Turn on the zbuffer
+		g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 		
 		//シェーダー適用開始。
 		g_pEffect->SetTechnique("SkinModel");
@@ -158,6 +200,15 @@ VOID Render()
 		g_pEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
 		//プロジェクション行列の転送。
 		g_pEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
+		//回転行列を転送。
+		g_pEffect->SetMatrix( "g_rotationMatrix", &g_rotationMatrix );
+		//ライトの向きを転送。
+		g_pEffect->SetVectorArray("g_diffuseLightDirection", g_diffuseLightDirection, LIGHT_NUM );
+		//ライトのカラーを転送。
+		g_pEffect->SetVectorArray("g_diffuseLightColor", g_diffuseLightColor, LIGHT_NUM );
+		//環境光を設定。
+		g_pEffect->SetVector("g_ambientLight", &g_ambientLight);
+
 		g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
 		
 		// Meshes are divided into subsets, one for each material. Render them in
@@ -208,22 +259,34 @@ HRESULT InitGeometry()
     LPD3DXBUFFER pD3DXMtrlBuffer;
 
     // Load the mesh from the specified file
-    if( FAILED( D3DXLoadMeshFromX( "Tiger.x", D3DXMESH_SYSTEMMEM,
+    if( FAILED( D3DXLoadMeshFromX( "sphere.x", D3DXMESH_SYSTEMMEM,
                                    g_pd3dDevice, NULL,
                                    &pD3DXMtrlBuffer, NULL, &g_dwNumMaterials,
                                    &g_pMesh ) ) )
     {
         // If model is not in current folder, try parent folder
-        if( FAILED( D3DXLoadMeshFromX( "..\\Tiger.x", D3DXMESH_SYSTEMMEM,
+        if( FAILED( D3DXLoadMeshFromX( "..\\sphere.x", D3DXMESH_SYSTEMMEM,
                                        g_pd3dDevice, NULL,
                                        &pD3DXMtrlBuffer, NULL, &g_dwNumMaterials,
                                        &g_pMesh ) ) )
         {
-            MessageBox( NULL, "Could not find tiger.x", "Meshes.exe", MB_OK );
+            MessageBox( NULL, "Could not find sphere.x", "Meshes.exe", MB_OK );
             return E_FAIL;
         }
     }
+	//法線が存在するか調べる。
+	if ((g_pMesh->GetFVF() & D3DFVF_NORMAL) == 0) {
+		//法線がないので作成する。
+		ID3DXMesh* pTempMesh = NULL;
 
+		g_pMesh->CloneMeshFVF(g_pMesh->GetOptions(),
+			g_pMesh->GetFVF() | D3DFVF_NORMAL, g_pd3dDevice, &pTempMesh);
+
+		D3DXComputeNormals(pTempMesh, NULL);
+		g_pMesh->Release();
+		g_pMesh = pTempMesh;
+
+	}
     // We need to extract the material properties and texture names from the 
     // pD3DXMtrlBuffer
     D3DXMATERIAL* d3dxMaterials = ( D3DXMATERIAL* )pD3DXMtrlBuffer->GetBufferPointer();
@@ -293,6 +356,10 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 		// Create the vertex buffer
 		if (SUCCEEDED(InitGeometry()))
 		{
+			ZeroMemory( g_diffuseLightDirection, sizeof(g_diffuseLightDirection) );
+			ZeroMemory( g_diffuseLightColor, sizeof(g_diffuseLightColor) );
+			
+			InitLight();
 			InitProjectionMatrix();
 			// Show the window
 			ShowWindow(hWnd, SW_SHOWDEFAULT);

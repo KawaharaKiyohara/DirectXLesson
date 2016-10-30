@@ -190,7 +190,7 @@ HRESULT InitGeometry()
     LPD3DXBUFFER pD3DXMtrlBuffer;
 
     // Load the mesh from the specified file
-    if( FAILED( D3DXLoadMeshFromX( "Tiger.x", D3DXMESH_SYSTEMMEM,
+    if( FAILED( D3DXLoadMeshFromX( "car.x", D3DXMESH_SYSTEMMEM,
                                    g_pd3dDevice, NULL,
                                    &pD3DXMtrlBuffer, NULL, &g_dwNumMaterials,
                                    &g_pMesh ) ) )

@@ -1,2 +1,0 @@
-﻿  main.cpp
-c:\github\directxlesson\shadertutorial_05\shadertutorial_05\main.cpp : fatal error C1041: cannot open program database 'C:\GitHub\DirectXLesson\ShaderTutorial_05\ShaderTutorial_05\x64\Debug\vc140.idb'; if multiple CL.EXE write to the same .PDB file, please use /FS

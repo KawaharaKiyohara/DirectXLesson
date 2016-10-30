@@ -21,8 +21,10 @@ D3DXMATRIX				g_projectionMatrix;	//プロジェクション行列。ビュー空間から射影空間
 D3DXMATRIX				g_worldMatrix;		//ワールド行列。モデルローカル空間から、ワールド空間に変換する行列。
 
 LPD3DXMESH				g_pMesh = NULL;
+D3DMATERIAL9*			g_pMeshMaterials = NULL;
 LPDIRECT3DTEXTURE9*	 	g_pMeshTextures = NULL; 	// Textures for our mesh
 DWORD              	 	g_dwNumMaterials = 0L;   	// Number of mesh materials
+
 
 /*!
  *@brief	シェーダーエフェクトファイル(*.fx)をロード。
@@ -66,8 +68,7 @@ HRESULT InitD3D(HWND hWnd)
 	d3dpp.Windowed = TRUE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-	d3dpp.EnableAutoDepthStencil = TRUE;
-	d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+
 	// Create the D3DDevice
 	if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
@@ -106,18 +107,6 @@ void InitProjectionMatrix()
 //-----------------------------------------------------------------------------
 VOID Cleanup()
 {
-	if (g_pMeshTextures != NULL) {
-		for (int i = 0; i < g_dwNumMaterials; i++) {
-			g_pMeshTextures[i]->Release();
-		}
-		delete[] g_pMeshTextures;
-	}
-	if (g_pMesh != NULL) {
-		g_pMesh->Release();
-	}
-	if (g_pEffect != NULL) {
-		g_pEffect->Release();
-	}
 	if (g_pd3dDevice != NULL)
 		g_pd3dDevice->Release();
 
@@ -132,39 +121,33 @@ VOID Cleanup()
 VOID Render()
 {
 	// Clear the backbuffer to a blue color
-	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
+	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
 	static int renderCount = 0;
 	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
 	{
-		//半透明合成の設定。
-		g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 		renderCount++;
 		D3DXMATRIXA16 matWorld;
     	D3DXMatrixRotationY( &g_worldMatrix, renderCount / 500.0f ); 
     	
-		
 		//シェーダー適用開始。
 		g_pEffect->SetTechnique("SkinModel");
 		g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
 		g_pEffect->BeginPass(0);
 
+
+
 		//定数レジスタに設定するカラー。
 		D3DXVECTOR4 color( 1.0f, 0.0f, 0.0f, 1.0f);
-		//ワールド行列の転送。
-		g_pEffect->SetMatrix("g_worldMatrix", &g_worldMatrix);
-		//ビュー行列の転送。
-		g_pEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
-		//プロジェクション行列の転送。
-		g_pEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
 		g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
+
 		
+		g_pEffect->SetMatrix("mWorld", &g_worldMatrix);
+		g_pEffect->SetMatrix("mView", &g_viewMatrix);
+		g_pEffect->SetMatrix("mProj", &g_projectionMatrix);
 		// Meshes are divided into subsets, one for each material. Render them in
         // a loop
         for( DWORD i = 0; i < g_dwNumMaterials; i++ )
         {
-			g_pEffect->SetTexture("g_diffuseTexture", g_pMeshTextures[i]);
             // Draw the mesh subset
             g_pMesh->DrawSubset( i );
         }
@@ -199,7 +182,6 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
-
 /*!
  *@brief	Xファイルを読み込んでジオメトリを初期化。
  */
@@ -208,7 +190,7 @@ HRESULT InitGeometry()
     LPD3DXBUFFER pD3DXMtrlBuffer;
 
     // Load the mesh from the specified file
-    if( FAILED( D3DXLoadMeshFromX( "Tiger.x", D3DXMESH_SYSTEMMEM,
+    if( FAILED( D3DXLoadMeshFromX( "car.x", D3DXMESH_SYSTEMMEM,
                                    g_pd3dDevice, NULL,
                                    &pD3DXMtrlBuffer, NULL, &g_dwNumMaterials,
                                    &g_pMesh ) ) )
@@ -227,13 +209,21 @@ HRESULT InitGeometry()
     // We need to extract the material properties and texture names from the 
     // pD3DXMtrlBuffer
     D3DXMATERIAL* d3dxMaterials = ( D3DXMATERIAL* )pD3DXMtrlBuffer->GetBufferPointer();
-   
+    g_pMeshMaterials = new D3DMATERIAL9[g_dwNumMaterials];
+    if( g_pMeshMaterials == NULL )
+        return E_OUTOFMEMORY;
     g_pMeshTextures = new LPDIRECT3DTEXTURE9[g_dwNumMaterials];
     if( g_pMeshTextures == NULL )
         return E_OUTOFMEMORY;
 
     for( DWORD i = 0; i < g_dwNumMaterials; i++ )
     {
+        // Copy the material
+        g_pMeshMaterials[i] = d3dxMaterials[i].MatD3D;
+
+        // Set the ambient color for the material (D3DX does not do this)
+        g_pMeshMaterials[i].Ambient = g_pMeshMaterials[i].Diffuse;
+
         g_pMeshTextures[i] = NULL;
         if( d3dxMaterials[i].pTextureFilename != NULL &&
             lstrlenA( d3dxMaterials[i].pTextureFilename ) > 0 )
@@ -258,12 +248,13 @@ HRESULT InitGeometry()
             }
         }
     }
-
     // Done with the material buffer
     pD3DXMtrlBuffer->Release();
 
     return S_OK;
 }
+
+
 
 //-----------------------------------------------------------------------------
 // Name: wWinMain()
@@ -284,7 +275,7 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 
 	// Create the application's window
 	HWND hWnd = CreateWindow("Shader Tutorial", "Shader Tutorial 00",
-		WS_OVERLAPPEDWINDOW, 100, 100, 500, 500,
+		WS_OVERLAPPEDWINDOW, 100, 100, 300, 300,
 		NULL, NULL, wc.hInstance, NULL);
 
 	// Initialize Direct3D
