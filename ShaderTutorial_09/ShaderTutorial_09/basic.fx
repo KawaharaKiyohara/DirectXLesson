@@ -35,9 +35,9 @@ sampler g_diffuseMapSampler =
 sampler_state
 {
 	Texture = <g_diffuseMap>;
-    MipFilter = NONE;
-    MinFilter = NONE;
-    MagFilter = NONE;
+    MipFilter = LINEAR;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
     AddressU = Wrap;
 	AddressV = Wrap;
 };
@@ -47,9 +47,9 @@ sampler g_normalMapSampler =
 sampler_state
 {
 	Texture = <g_normalMap>;
-    MipFilter = NONE;
-    MinFilter = NONE;
-    MagFilter = NONE;
+    MipFilter = LINEAR;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
     AddressU = Wrap;
 	AddressV = Wrap;
 };
@@ -93,17 +93,19 @@ VS_OUTPUT VSMain( VS_INPUT In )
  */
 float4 PSMain( VS_OUTPUT In ) : COLOR
 {
-	float3 normal = tex2D( g_normalMapSampler, In.uv );
-	float4x4 tangentSpaceMatrix;
+	//法線マップからタンジェントスペース法線をフェッチ。
+	float3 localNormal = tex2D( g_normalMapSampler, In.uv );
+	//法線と接ベクトルの外積を求めて従法線を求める。
 	float3 biNormal = normalize( cross( In.tangentNormal, In.normal) );
-	tangentSpaceMatrix[0] = float4( In.tangentNormal, 0.0f);
-	tangentSpaceMatrix[1] = float4( biNormal, 0.0f);
-	tangentSpaceMatrix[2] = float4( In.normal, 0.0f);
-	tangentSpaceMatrix[3] = float4( 0.0f, 0.0f, 0.0f, 1.0f );
 	//-1.0～1.0の範囲にマッピングする。
-	normal = (normal * 2.0f)- 1.0f;
-	normal = tangentSpaceMatrix[0] * normal.x + tangentSpaceMatrix[1] * normal.y + tangentSpaceMatrix[2] * normal.z; 
-	float4 lig = CalcLight(normal);
+	localNormal = (localNormal * 2.0f)- 1.0f;
+	//ワールドスペースの法線を求める。
+	float3 worldNormal = In.tangentNormal * localNormal.x 
+	                    + biNormal * localNormal.y 
+	                    + In.normal * localNormal.z;
+	                     
+	//ワールドスペースの法線を使ってライティング。
+	float4 lig = CalcLight(worldNormal);
 	float4 diff = tex2D( g_diffuseMapSampler, In.uv );
 	float4 color = diff* lig;
 	return float4( color.xyz, 1.0f);

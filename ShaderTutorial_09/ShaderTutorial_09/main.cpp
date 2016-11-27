@@ -87,22 +87,23 @@ void LoadEffectFile()
 	}
 }
 /*!
- * @brief	法線マップのロード。
+ * @brief	テクスチャをロード。
  */
-void LoadNormalMap()
+void LoadTexture()
 {
-	 if( FAILED( D3DXCreateTextureFromFileA( g_pd3dDevice,
+	if( FAILED( D3DXCreateTextureFromFileA( g_pd3dDevice,
                                                     "normal.jpg",
                                                     &g_pNormalMap ) ) )
 	{
 		std::abort();
 	}
-	 if (FAILED(D3DXCreateTextureFromFileA(g_pd3dDevice,
+	if (FAILED(D3DXCreateTextureFromFileA(g_pd3dDevice,
 		 "diffuse.jpg",
 		 &g_pDiffuseMap)))
-	 {
+	{
 		 std::abort();
-	 }
+	}
+
 }
 /*!
 *@brief	ライトを更新。
@@ -173,8 +174,8 @@ HRESULT InitD3D(HWND hWnd)
 	// Device state would normally be set here
 	//シェーダーエフェクトファイルのロード。
 	LoadEffectFile();
-	//法線マップのロード。
-	LoadNormalMap();
+	//テクスチャのロード。
+	LoadTexture();
 	return S_OK;
 }
 
