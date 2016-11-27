@@ -47,6 +47,23 @@ void Game::Start()
  */
 void Game::Update()
 {
+	//ライトの回転
+	float angle = 0.0f;
+	if (GetAsyncKeyState(VK_LEFT)) {
+		angle = D3DXToRadian(3.0f);
+	}
+	else if (GetAsyncKeyState(VK_RIGHT)) {
+		angle = D3DXToRadian(-3.0f);
+	}
+	//ライトを回転させる行列を作成する。
+	D3DXMATRIX mRot;
+	D3DXMatrixRotationY(&mRot, angle);
+	//回転させる。
+	for (int i = 0; i < 4; i++) {
+		D3DXVECTOR4 dir;
+		D3DXVec4Transform(&dir, &light.GetDiffuseLightDirection()[i], &mRot);
+		light.SetDiffuseLightDirection(i, dir);
+	}
 	player.Update();
 }
 /*!

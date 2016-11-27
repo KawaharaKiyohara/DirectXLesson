@@ -40,6 +40,14 @@ void Player::Init()
 }
 void Player::Update()
 {
+	if (GetAsyncKeyState('A')) {
+		//法線マップのオフ
+		model.SetNormalMap(NULL);
+	}
+	else if (GetAsyncKeyState('S')) {
+		//法線マップのオン
+		model.SetNormalMap(normalMap);
+	}
 	animation.Update(1.0f / 60.0f);
 	model.UpdateWorldMatrix(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXQUATERNION(0.0f, 0.0f, 0.0f, 1.0f), D3DXVECTOR3(1.0f, 1.0f, 1.0f));
 }
