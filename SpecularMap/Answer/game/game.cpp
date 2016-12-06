@@ -34,10 +34,10 @@ void Game::Start()
 	light.SetDiffuseLightDirection(2, D3DXVECTOR4(0.0f, 0.707f, -0.707f, 1.0f));
 	light.SetDiffuseLightDirection(3, D3DXVECTOR4(0.0f, -0.707f, -0.707f, 1.0f));
 
-	light.SetDiffuseLightColor(0, D3DXVECTOR4(0.3f, 0.3f, 0.3f, 5.0f));
-	light.SetDiffuseLightColor(1, D3DXVECTOR4(0.3f, 0.3f, 0.3f, 5.0f));
-	light.SetDiffuseLightColor(2, D3DXVECTOR4(0.3f, 0.3f, 0.3f, 5.0f));
-	light.SetDiffuseLightColor(3, D3DXVECTOR4(0.3f, 0.3f, 0.3f, 5.0f));
+	light.SetDiffuseLightColor(0, D3DXVECTOR4(0.3f, 0.3f, 0.3f, 10.0f));
+	light.SetDiffuseLightColor(1, D3DXVECTOR4(0.3f, 0.3f, 0.3f, 10.0f));
+	light.SetDiffuseLightColor(2, D3DXVECTOR4(0.3f, 0.3f, 0.3f, 10.0f));
+	light.SetDiffuseLightColor(3, D3DXVECTOR4(0.3f, 0.3f, 0.3f, 10.0f));
 	light.SetAmbientLight(D3DXVECTOR4(0.2f, 0.2f, 0.2f, 1.0f));
 	//プレイヤーの初期化。
 	player.Init();

@@ -1,1 +1,2 @@
-﻿LINK : fatal error LNK1168: cannot open C:\GitHub\DirectXLesson\SpecularMap\Answer\Debug\game.exe for writing
+﻿  game.cpp
+  game.vcxproj -> C:\Users\localuser\Documents\GitHub\DirectXLesson\SpecularMap\Answer\Debug\game.exe
