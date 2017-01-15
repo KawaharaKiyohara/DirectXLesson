@@ -24,7 +24,7 @@ Bloom::Bloom()
 		FRAME_BUFFER_WITDH,		//幅と高さはフレームバッファと同じにしておく。
 		FRAME_BUFFER_HEIGHT,
 		1,
-		D3DFMT_A8R8G8B8,		//32bitのフォーマットで今回はいい。ブルーム以降にHDRの情報が必要な処理があるなら、ここも浮動小数点バッファにする。
+		D3DFMT_A16B16G16R16F,	//ここも浮動小数点バッファにする。
 		D3DFMT_D16,				//使わないので16bit。本来は作成する必要もない。
 		D3DMULTISAMPLE_NONE,	//マルチサンプリングの種類。今回はマルチサンプリングは行わないのでD3DMULTISAMPLE_NONEでいい。
 		0						//マルチサンプリングの品質レベル。今回はマルチサンプリングは行わないので0でいい。
@@ -35,7 +35,7 @@ Bloom::Bloom()
 		FRAME_BUFFER_WITDH >> 1,	//横の解像度をフレームバッファの半分にする。
 		FRAME_BUFFER_HEIGHT,
 		1,
-		D3DFMT_A8R8G8B8,		//32bitのフォーマットで今回はいい。ブルーム以降にHDRの情報が必要な処理があるなら、ここも浮動小数点バッファにする。
+		D3DFMT_A16B16G16R16F,	//ここも浮動小数点バッファにする。
 		D3DFMT_D16,				//使わないので16bit。本来は作成する必要もない。
 		D3DMULTISAMPLE_NONE,	//マルチサンプリングの種類。今回はマルチサンプリングは行わないのでD3DMULTISAMPLE_NONEでいい。
 		0						//マルチサンプリングの品質レベル。今回はマルチサンプリングは行わないので0でいい。
@@ -45,7 +45,7 @@ Bloom::Bloom()
 		FRAME_BUFFER_WITDH >> 1,	//縦と横の解像度をフレームバッファの半分にする。
 		FRAME_BUFFER_HEIGHT >> 1,
 		1,
-		D3DFMT_A8R8G8B8,		//32bitのフォーマットで今回はいい。ブルーム以降にHDRの情報が必要な処理があるなら、ここも浮動小数点バッファにする。
+		D3DFMT_A16B16G16R16F,	//ここも浮動小数点バッファにする。
 		D3DFMT_D16,				//使わないので16bit。本来は作成する必要もない。
 		D3DMULTISAMPLE_NONE,	//マルチサンプリングの種類。今回はマルチサンプリングは行わないのでD3DMULTISAMPLE_NONEでいい。
 		0						//マルチサンプリングの品質レベル。今回はマルチサンプリングは行わないので0でいい。
@@ -57,10 +57,7 @@ Bloom::~Bloom()
 }
 void Bloom::Render()
 {
-	static bool isEnable = false;
-	if (isEnable) {
-		return;
-	}
+
 	// Zテストで失敗してもらったら困るので、Zテストは無効にしておく。
 	g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
 	//まずは輝度を抽出する。
