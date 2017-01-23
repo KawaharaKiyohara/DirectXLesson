@@ -41,7 +41,7 @@ float4 PSSamplingLuminance( VS_OUTPUT In ) : COLOR
 	//輝度を計算する。tに輝度が入っている。
 	float t = dot( color.xyz, float3(0.2125f, 0.7154f, 0.0721f) );
 	//輝度が1.0以下ならピクセルキル
-	clip(t - 1.001f);
+	clip(t - 2.00f);
 	color.xyz *= (t - 1.0f);
 	return color;
 }

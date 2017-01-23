@@ -21,7 +21,15 @@ Bloom::Bloom()
 	effect = g_effectManager->LoadEffect("Assets/Shader/bloom.fx");
 	
 	//HandOn-2 輝度抽出用のレンダリングターゲットを作成する。
-
+	luminanceRenderTarget.Create(
+		FRAME_BUFFER_WITDH,
+		FRAME_BUFFER_HEIGHT,
+		1,
+		D3DFMT_A16B16G16R16F,
+		D3DFMT_D16,
+		D3DMULTISAMPLE_NONE,
+		0
+	);
 	//ブラーをかけるためのダウンサンプリング用のレンダリングターゲットを作成。
 	//横ブラー用。
 	downSamplingRenderTarget[0].Create(
@@ -54,11 +62,12 @@ void Bloom::Render()
 	// Zテストで失敗してもらったら困るので、Zテストは無効にしておく。
 	g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
 	//まずは輝度を抽出する。
-	/*{
+	{
 		// αブレンドもいらない。
 		g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 		//HandsOn-3 輝度抽出用のレンダリングターゲットに変更する。
-
+		g_pd3dDevice->SetRenderTarget(0, luminanceRenderTarget.GetRenderTarget());
+		g_pd3dDevice->SetDepthStencilSurface(luminanceRenderTarget.GetDepthStencilBuffer());
 		//黒でクリア。
 		g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 		// 輝度抽出テクニックをセット。
@@ -75,7 +84,7 @@ void Bloom::Render()
 		effect->End();
 		// 変更したレンダリングステートを元に戻す。
 		g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	}*/
+	}
 
 	//ガウスブラーで使う重みテーブルを更新。
 	UpdateWeight(25.0f);
