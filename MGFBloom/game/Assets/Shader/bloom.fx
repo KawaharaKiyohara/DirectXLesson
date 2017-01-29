@@ -72,6 +72,8 @@ float2 g_luminanceTexSize;		//輝度テクスチャのサイズ。
 float2 g_offset;				//オフセット
 float  g_weight[8];				//ガウスフィルタの重み。
 float2 g_renderTargetSize;		//レンダリングターゲットのサイズ。
+float  g_mulYBlurOutputColor;	//Yブラーから出力されるピクセルカラーに乗算されるシェーダー定数。
+
 
 /*!
  * @brief	Xブラー頂点シェーダー。
@@ -161,7 +163,7 @@ float4 PSYBlur( VS_BlurOutput In ) : COLOR
 	                 + tex2D( g_blurSampler, In.tex1 + g_offset ));
 	Color += g_weight[7] * (tex2D( g_blurSampler, In.tex7 )
 	                 + tex2D( g_blurSampler, In.tex0 + g_offset ));
-	return Color;
+	return Color * g_mulYBlurOutputColor;
 }
 /*!
  * @brief	ファイナル。

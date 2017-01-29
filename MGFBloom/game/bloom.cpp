@@ -109,8 +109,8 @@ void Bloom::Render()
 		effect->BeginPass(0);
 		//輝度テクスチャのサイズを転送。
 		float size[2];
-		size[0] = luminanceTexW;
-		size[1] = luminanceTexH;
+		size[0] = (float)luminanceTexW;
+		size[1] = (float)luminanceTexH;
 		effect->SetValue("g_luminanceTexSize", size, sizeof(size));
 
 		//オフセットを転送。
@@ -121,8 +121,8 @@ void Bloom::Render()
 
 		//レンダリングターゲットのサイズを転送。
 		float renderTargetSize[2];
-		renderTargetSize[0] = downSamplingRenderTarget[i][0].GetWidth();
-		renderTargetSize[1] = downSamplingRenderTarget[i][0].GetHeight();
+		renderTargetSize[0] = (float)downSamplingRenderTarget[i][0].GetWidth();
+		renderTargetSize[1] = (float)downSamplingRenderTarget[i][0].GetHeight();
 		effect->SetValue("g_renderTargetSize", renderTargetSize, sizeof(renderTargetSize));
 
 		effect->SetValue("g_weight", weights, sizeof(weights));
@@ -146,8 +146,8 @@ void Bloom::Render()
 		
 		blurTexture = downSamplingRenderTarget[i][0].GetTexture();
 		//輝度テクスチャのサイズを転送。
-		size[0] = downSamplingRenderTarget[i][0].GetWidth();
-		size[1] = downSamplingRenderTarget[i][0].GetHeight();
+		size[0] = (float)downSamplingRenderTarget[i][0].GetWidth();
+		size[1] = (float)downSamplingRenderTarget[i][0].GetHeight();
 		effect->SetValue("g_luminanceTexSize", size, sizeof(size));
 
 		//オフセットを転送。
@@ -156,8 +156,8 @@ void Bloom::Render()
 		effect->SetValue("g_offset", offset, sizeof(offset));
 
 		//レンダリングターゲットのサイズを転送。
-		renderTargetSize[0] = downSamplingRenderTarget[i][1].GetWidth();
-		renderTargetSize[1] = downSamplingRenderTarget[i][1].GetHeight();
+		renderTargetSize[0] = (float)downSamplingRenderTarget[i][1].GetWidth();
+		renderTargetSize[1] = (float)downSamplingRenderTarget[i][1].GetHeight();
 		effect->SetValue("g_renderTargetSize", renderTargetSize, sizeof(renderTargetSize));
 
 		effect->SetValue("g_weight", weights, sizeof(weights));
