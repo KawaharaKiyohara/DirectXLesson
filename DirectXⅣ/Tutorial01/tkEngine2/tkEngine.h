@@ -16,6 +16,7 @@ namespace tkEngine2{
 		int	screenHeight;			//!<スクリーンの高さ。
 		int frameBufferHeight;		//!<フレームバッファの幅。これが内部解像度。
 		int frameBufferWidth;		//!<フレームバッファの高さ。これが内部解像度。
+		int nCmdShow;				//!<
 	};
 	/*!
 	 *@brief	エンジン。

@@ -20,7 +20,7 @@ namespace tkEngine2 {
 			return false;
 		}
 		//DirectX初期化。
-		if(InitDirectX(initParam)){
+		if(!InitDirectX(initParam)){
 			return false;
 		}
 		return true;
@@ -44,6 +44,7 @@ namespace tkEngine2 {
 			WS_OVERLAPPEDWINDOW, 0, 0, m_screenWidth, m_screenHeight,
 			nullptr, nullptr, wc.hInstance, nullptr);
 
+		ShowWindow(m_hWnd, initParam.nCmdShow);
 		return m_hWnd != nullptr;
 	}
 	bool CEngine::InitDirectX( const SInitParam& initParam )
@@ -82,7 +83,8 @@ namespace tkEngine2 {
 	    sd.OutputWindow = m_hWnd;
 	    sd.SampleDesc.Count = 1;							//ピクセル単位のマルチサンプリングの数。MSAAはなし。
 		sd.SampleDesc.Quality = 0;							//MSAAなし。
-
+		sd.Windowed =  TRUE;
+		
 		//すべてのドライバタイプでスワップチェインの作成を試す。
 		HRESULT hr = E_FAIL;
 		for (auto driverType : driverTypes) {
@@ -127,12 +129,59 @@ namespace tkEngine2 {
 	}
 	void CEngine::Final()
 	{
+		if( m_pImmediateContext ){
+			m_pImmediateContext->ClearState();
+		}
+
+	    if( m_pRenderTargetView ){
+			m_pRenderTargetView->Release();
+		}
+	    if( m_pSwapChain ){
+			m_pSwapChain->Release();
+		}
+	    if( m_pImmediateContext ){
+			m_pImmediateContext->Release();
+		}
+	    if( m_pd3dDevice ){
+			m_pd3dDevice->Release();
+		}
 	}
 	void CEngine::RunGameLoop()
 	{
+		MSG msg = {0};
+	    while( WM_QUIT != msg.message )
+	    {
+	        if( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+	        {
+	            TranslateMessage( &msg );
+	            DispatchMessage( &msg );
+	        }
+	        else
+	        {
+	            //Render();
+	        }
+	    }
 	}
 	LRESULT CALLBACK CEngine::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		return E_FAIL;
+		PAINTSTRUCT ps;
+		HDC hdc;
+
+		switch (msg)
+		{
+		case WM_PAINT:
+			hdc = BeginPaint(hWnd, &ps);
+			EndPaint(hWnd, &ps);
+			break;
+
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			break;
+
+		default:
+			return DefWindowProc(hWnd, msg, wParam, lParam);
+		}
+
+		return 0;
 	}
 }
