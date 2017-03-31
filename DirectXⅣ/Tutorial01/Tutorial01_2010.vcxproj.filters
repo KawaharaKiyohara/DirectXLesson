@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns:atg="http://atg.xbox.com" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{8e114980-c1a3-4ada-ad7c-83caadf5daeb}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+    <Filter Include="DXUT">
+      <UniqueIdentifier>{a43c5c25-0e86-4a20-b64a-883785ff74fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tkEngine2">
+      <UniqueIdentifier>{a218840d-09f8-44cd-a705-6b4c88f18384}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tkEngine2\debug">
+      <UniqueIdentifier>{42e264ff-a9d4-43ef-9d47-0a4b36e88f83}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="tkEngine2\tkEnginePreCompile.h">
+      <Filter>tkEngine2</Filter>
+    </ClInclude>
+    <ClInclude Include="tkEngine2\tkEngine.h">
+      <Filter>tkEngine2</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Tutorial01.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="tkEngine2\tkEnginePreCompile.cpp">
+      <Filter>tkEngine2</Filter>
+    </ClCompile>
+    <ClCompile Include="tkEngine2\tkEngine.cpp">
+      <Filter>tkEngine2</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <CLInclude Include="resource.h">
+      <Filter>Resource Files</Filter>
+    </CLInclude>
+    <ResourceCompile Include="Tutorial01.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+</Project>

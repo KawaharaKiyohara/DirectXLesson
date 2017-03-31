@@ -34,8 +34,6 @@ Bloom::Bloom()
 	int h = FRAME_BUFFER_HEIGHT;
 	//MGF用のレンダリングターゲットを作成。
 	for (int i = 0; i < MGF_DOWN_SAMPLE_COUNT; i++) {
-
-
 		//ブラーをかけるためのダウンサンプリング用のレンダリングターゲットを作成。
 		//横ブラー用。
 		w /= 2;	//横の解像度を半分にする。

@@ -28,7 +28,7 @@ void Player::Init()
 		MessageBox(NULL, "テクスチャのロードに失敗しました。指定したパスが正しいか確認をお願いします。", "エラー", MB_OK);
 	}
 		//モデルをロード。
-	modelData.LoadModelData("Assets/model/Unity.X", &animation);
+	modelData.LoadModelData("Assets/model/Enemy_Goblin.X", &animation);
 
 	model.Init(&modelData);
 	model.SetLight(game->GetDefaultLight());

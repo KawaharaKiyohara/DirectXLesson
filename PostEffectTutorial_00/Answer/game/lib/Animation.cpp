@@ -40,8 +40,7 @@ void Animation::PlayAnimation(int animationSetIndex)
 		}
 	}
 	else {
-		//アニメーションのインデックスが不正です。
-		std::abort();
+	
 	}
 }
 void Animation::PlayAnimation(int animationSetIndex, float interpolateTime)

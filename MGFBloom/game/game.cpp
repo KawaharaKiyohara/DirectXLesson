@@ -29,7 +29,7 @@ void Game::Start()
 	camera.Update();
 
 	//デフォルトライトを初期化。
-	light.SetAmbientLight(D3DXVECTOR4(5.3f, 0.3f, 0.3f, 1.0f));
+	light.SetAmbientLight(D3DXVECTOR4(10.3f, 0.3f, 0.3f, 1.0f));
 	//プレイヤーの初期化。
 	player.Init();
 }

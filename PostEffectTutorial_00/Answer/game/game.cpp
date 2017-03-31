@@ -24,7 +24,7 @@ void Game::Start()
 {
 	//ƒJƒƒ‰‰Šú‰»B
 	camera.Init();
-	camera.SetEyePt(D3DXVECTOR3(0.0f, 1.0f, 2.0f));
+	camera.SetEyePt(D3DXVECTOR3(0.0f, 1.0f, 1000.0f));
 	camera.SetLookatPt(D3DXVECTOR3(0.0f, 0.5f, 0.0f));
 	camera.Update();
 
