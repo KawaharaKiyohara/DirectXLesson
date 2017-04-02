@@ -12,5 +12,14 @@ namespace tkEngine2{
 	public:
 		CConstantBuffer();
 		~CConstantBuffer();
+		/*!
+		*@brief ID3D11Buffer*を取得。
+		*/
+		ID3D11Buffer* GetBody()
+		{
+			return m_constantBuffer;
+		}
+	public:
+		ID3D11Buffer*	m_constantBuffer;		//!<定数バッファ。
 	};
 }
