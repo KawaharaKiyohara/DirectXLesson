@@ -73,6 +73,9 @@
     <ClCompile Include="tkEngine2\graphics\GPUPipelineBuffer\tkStructuredBuffer.cpp">
       <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
     </ClCompile>
+    <ClCompile Include="tkEngine2\graphics\GPUPipelineBuffer\tkConstantBuffer.cpp">
+      <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tutorial01.cpp" />
@@ -130,6 +133,9 @@
       <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
     </ClInclude>
     <ClInclude Include="tkEngine2\graphics\GPUPipelineBuffer\tkStructuredBuffer.h">
+      <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="tkEngine2\graphics\GPUPipelineBuffer\tkConstantBuffer.h">
       <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
     </ClInclude>
   </ItemGroup>
