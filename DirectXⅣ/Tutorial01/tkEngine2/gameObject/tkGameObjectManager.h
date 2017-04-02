@@ -50,7 +50,7 @@ namespace tkEngine2{
 		/*!
 		*@brief	実行。
 		*/
-		void Execute();
+		void Execute(CRenderContext& renderContext);
 		/*!
 		 *@brief	初期化。
 		 *@param[in]	gameObjectPrioMax	ゲームオブジェクトの優先度の最大値。(255まで)
@@ -90,11 +90,11 @@ namespace tkEngine2{
 		template<class T>
 		T* NewGameObject(GameObjectPrio prio, const char* objectName = nullptr)
 		{
+			(void*)objectName;
 			TK_ASSERT( prio <= m_gameObjectPriorityMax, "ゲームオブジェクトの優先度の最大数が大きすぎます。");
 			T* newObject = new T();
 			newObject->Awake();
 			newObject->SetMarkNewFromGameObjectManager();
-			unsigned int hash = MakeGameObjectNameKey(objectName);
 			m_gameObjectListArray.at(prio).push_back(newObject);
 			newObject->m_isRegist = true;
 			newObject->m_priority = prio;
@@ -163,7 +163,7 @@ namespace tkEngine2{
 	template<class T>
 	static inline T* NewGO( int priority, const char* objectName = nullptr)
 	{
-		return GameObjectManager().NewGameObject<T>( priority, objectName );
+		return GameObjectManager().NewGameObject<T>( (GameObjectPrio)priority, objectName );
 	}
 	/*!
 	 *@brief	ゲームオブジェクト削除のヘルパー関数。

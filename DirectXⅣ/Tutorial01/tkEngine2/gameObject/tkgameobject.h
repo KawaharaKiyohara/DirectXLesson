@@ -45,9 +45,9 @@ namespace tkEngine2{
 		/*!
 		 *@brief	描画
 		 */
-		virtual void Render()
+		virtual void Render(CRenderContext& renderContext)
 		{
-
+			(void)renderContext;
 		}
 		/*!
 		 *@brief	削除されるときに呼ばれる。
@@ -79,13 +79,17 @@ namespace tkEngine2{
 		/*!
 		 *@brief	Render関数が実行される前に呼ばれる描画処理。
 		 */
-		virtual void PreRender() {}
+		virtual void PreRender(CRenderContext& renderContext) { 
+			(void)renderContext; 
+		}
 		/*!
 		 *@brief	Render関数が実行された後で呼ばれる描画処理
 		 *@details
 		 * ポストエフェクトの後で実行されます。HUDなどポストエフェクトの影響を受けたくない描画物はここでレンダリングしてください。
 		 */
-		virtual void PostRender() {}
+		virtual void PostRender(CRenderContext& renderContext) {
+			(void)renderContext;
+		}
 		/*!
 		*@brief	死亡フラグを立てる。
 		*@details
@@ -138,22 +142,22 @@ namespace tkEngine2{
 			return m_tags;
 		}
 	public:
-		void PostRenderWrapper()
+		void PostRenderWrapper(CRenderContext& renderContext)
 		{
 			if (m_isActive && m_isStart && !m_isDead && !m_isRegistDeadList) {
-				PostRender();
+				PostRender(renderContext);
 			}
 		}
-		void RenderWrapper() 
+		void RenderWrapper(CRenderContext& renderContext)
 		{
 			if (m_isActive && m_isStart && !m_isDead && !m_isRegistDeadList) {
-				Render();
+				Render(renderContext);
 			}
 		}
-		void PreRenderWrapper()
+		void PreRenderWrapper(CRenderContext& renderContext)
 		{
 			if (m_isActive && m_isStart && !m_isDead && !m_isRegistDeadList) {
-				PreRender();
+				PreRender(renderContext);
 			}
 		}
 		void PostUpdateWrapper()

@@ -2,11 +2,12 @@
  *@brief	CGameObjectのマネージャ
  */
 #include "tkEngine2/tkEnginePreCompile.h"
+#include "tkEngine2/tkEngine.h"
 #include "tkEngine2/gameObject/tkgameobjectmanager.h"
 #include <future>
 
 namespace tkEngine2{
-	void CGameObjectManager::Execute()
+	void CGameObjectManager::Execute(CRenderContext& renderContext)
 	{
 		ExecuteDeleteGameObjects();
 
@@ -34,6 +35,30 @@ namespace tkEngine2{
 		}
 		//シーングラフを更新。
 		UpdateSceneGraph();
+
+		//画面をクリア
+		float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f }; //red,green,blue,alpha
+		renderContext.ClearRenderTargetView(0, ClearColor);
+		renderContext.SetViewport(0.0f, 0.0f, (float)Engine().GetFrameBufferWidth(), (float)Engine().GetFrameBufferHeight());
+		
+		for (GameObjectList objList : m_gameObjectListArray) {
+			for (IGameObject* obj : objList) {
+				obj->PreRenderWrapper(renderContext);
+			}
+		}
+
+		for (GameObjectList objList : m_gameObjectListArray) {
+			for (IGameObject* obj : objList) {
+				obj->RenderWrapper(renderContext);
+			}
+		}
+
+		for (GameObjectList objList : m_gameObjectListArray) {
+			for (IGameObject* obj : objList) {
+				obj->PostRenderWrapper(renderContext);
+			}
+		}
+
 #if 0
 		{
 			//ここからレンダリング部。未実装やで。

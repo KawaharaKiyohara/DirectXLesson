@@ -3,6 +3,7 @@
  */
 #include "tkEngine2/tkEnginePreCompile.h"
 #include "tkEngine2/tkEngine.h"
+#include "tkEngine2/gameObject/tkGameObjectManager.h"
 
 namespace tkEngine2 {
 	CEngine::CEngine()
@@ -23,6 +24,8 @@ namespace tkEngine2 {
 		if(!InitDirectX(initParam)){
 			return false;
 		}
+		//GameObjectManagerの初期化。
+		GameObjectManager().Init(initParam.gameObjectPrioMax);
 		return true;
 	}
 	bool CEngine::InitWindow( const SInitParam& initParam )
@@ -36,11 +39,11 @@ namespace tkEngine2 {
 		{
 			sizeof(WNDCLASSEX), CS_CLASSDC, MsgProc, 0L, 0L,
 			GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr,
-			TEXT("D3D Tutorial"), nullptr
+			TEXT("GameDemo"), nullptr
 		};
 		RegisterClassEx(&wc);
 		// Create the application's window
-		m_hWnd = CreateWindow(TEXT("D3D Tutorial"), TEXT("D3D Tutorial 06: Meshes"),
+		m_hWnd = CreateWindow(TEXT("GameDemo"), TEXT("GameDemo"),
 			WS_OVERLAPPEDWINDOW, 0, 0, m_screenWidth, m_screenHeight,
 			nullptr, nullptr, wc.hInstance, nullptr);
 
@@ -100,6 +103,7 @@ namespace tkEngine2 {
 			//スワップチェインを作成できなかった。
 			return false;
 		}
+		
 		//書き込み先になるレンダリングターゲットを作成。
 		ID3D11Texture2D* pBackBuffer = NULL;
 		hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
@@ -113,17 +117,13 @@ namespace tkEngine2 {
 			return false;
 		}
 
-		m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
+		//レンダリングコンテキストの初期化。
+		m_renderContext.Init(m_pImmediateContext);
+
+		m_renderContext.OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
 
 		//ビューポートを設定。
-		D3D11_VIEWPORT vp;
-		vp.Width = (FLOAT)m_frameBufferWidth;
-		vp.Height = (FLOAT)m_frameBufferHeight;
-		vp.MinDepth = 0.0f;
-		vp.MaxDepth = 1.0f;
-		vp.TopLeftX = 0;
-		vp.TopLeftY = 0;
-		m_pImmediateContext->RSSetViewports(1, &vp);
+		m_renderContext.SetViewport(0.0f, 0.0f, (FLOAT)m_frameBufferWidth, (FLOAT)m_frameBufferHeight);
 
 		return true;
 	}
@@ -158,9 +158,17 @@ namespace tkEngine2 {
 	        }
 	        else
 	        {
-	            //Render();
+				//更新。
+				Update();
 	        }
 	    }
+	}
+	void CEngine::Update()
+	{
+		CGameObjectManager& goMgr = GameObjectManager();
+		goMgr.Execute(m_renderContext);
+
+		m_pSwapChain->Present(0, 0);
 	}
 	LRESULT CALLBACK CEngine::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{

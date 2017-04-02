@@ -4,9 +4,47 @@
 #include "stdafx.h"
 #include "tkEngine2/tkEnginePreCompile.h"
 #include "tkEngine2/tkEngine.h"
+#include "tkEngine2\graphics\tkShader.h"
+#include "tkEngine2/graphics/tkVertexBuffer.h"
 
 using namespace tkEngine2;
 
+class CTriangleDraw : public IGameObject {
+	CShader m_vsShader;
+	CShader m_psShader;
+	CVertexBuffer m_vertexBuffer;
+	struct SSimpleVertex {
+		CVector3 pos;
+	};
+public:
+	bool Start() override
+	{
+		m_vsShader.Load("Assets/shader/Tutorial02.fx", "VS", CShader::EnType::VS);
+		m_psShader.Load("Assets/shader/Tutorial02.fx", "PS", CShader::EnType::PS);
+
+		SSimpleVertex vertices[] =
+		{
+			CVector3(0.0f, 0.5f, 0.5f),
+			CVector3(0.5f, -0.5f, 0.5f),
+			CVector3(-0.5f, -0.5f, 0.5f),
+		};
+		m_vertexBuffer.Create(3, sizeof(SSimpleVertex), vertices);
+		return true;
+	}
+	void Update() override
+	{
+
+	}
+	void Render(CRenderContext& renderContext) override
+	{
+		renderContext.SetVertexBuffer(m_vertexBuffer);
+		renderContext.SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		renderContext.VSSetShader(m_vsShader);
+		renderContext.PSSetShader(m_psShader);
+		renderContext.SetInputLayout(m_vsShader.GetInputLayout());
+		renderContext.Draw(3,0);
+	}
+};
 
 /*!
  *@brief	メイン関数。
@@ -25,6 +63,8 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 	initParam.frameBufferHeight = 720;
 	//エンジンを初期化。
 	if (Engine().Init(initParam) == true) {
+		
+		NewGO<CTriangleDraw>(0);
 		//初期化に成功。
 		//ゲームループを実行。
 		Engine().RunGameLoop();

@@ -2,10 +2,10 @@
  *@brief	AABB
  */
 
-#include "tkEngine/tkEnginePreCompile.h"
-#include "tkEngine/math/tkAabb.h"
+#include "tkEngine2/tkEnginePreCompile.h"
+#include "tkEngine2/math/tkAabb.h"
 
-namespace tkEngine{
+namespace tkEngine2{
 	/*!
 	 *@brief	コンストラクタ。
 	 */

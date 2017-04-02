@@ -5,7 +5,7 @@
 #pragma once
 
 
-namespace tkEngine{
+namespace tkEngine2{
 	/*!
 	 *@brief	AABB
 	 *@details

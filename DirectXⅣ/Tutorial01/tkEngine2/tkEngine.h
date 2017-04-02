@@ -10,6 +10,7 @@ namespace tkEngine2{
 	struct SInitParam{
 		SInitParam(){
 			memset(this, 0, sizeof(SInitParam));
+			gameObjectPrioMax = 32;
 		}
 		HINSTANCE hInstance;		//!<アプリケーションインスタンス。
 		int	screenWidth;			//!<スクリーンの幅。
@@ -17,11 +18,12 @@ namespace tkEngine2{
 		int frameBufferHeight;		//!<フレームバッファの幅。これが内部解像度。
 		int frameBufferWidth;		//!<フレームバッファの高さ。これが内部解像度。
 		int nCmdShow;				//!<
+		unsigned char gameObjectPrioMax;		//!<ゲームオブジェクトの優先度の最大値(32まで)
 	};
 	/*!
 	 *@brief	エンジン。
 	 */
-	class CEngine{
+	class CEngine : Noncopyable {
 	private:
 		/*!
 		 *@brief	コンストラクタ。
@@ -56,6 +58,34 @@ namespace tkEngine2{
 			}
 			return *instance;
 		}
+		/*!
+		*@brief	Direct3DDeviceの取得。
+		*/
+		ID3D11Device* GetD3DDevice() const
+		{
+			return m_pd3dDevice;
+		}
+		/*!
+		*@brief	メインレンダリングターゲットビューを取得。
+		*/
+		ID3D11RenderTargetView* GetMainRenderTargtView() const
+		{
+			return m_pRenderTargetView;
+		}
+		/*!
+		*@brief		フレームバッファの幅を取得。
+		*/
+		int GetFrameBufferWidth() const
+		{
+			return m_frameBufferWidth;
+		}
+		/*!
+		*@brief		フレームバッファの高さを取得。
+		*/
+		int GetFrameBufferHeight() const
+		{
+			return m_frameBufferHeight;
+		}
 	private:
 		/*!
 		 *@brief	ウィンドウ初期化。
@@ -69,12 +99,17 @@ namespace tkEngine2{
 		* @brief	ウィンドウプロシージャ。
 		*/
 		static LRESULT CALLBACK MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+		/*!
+		* @brief	更新。
+		*/
+		void Update();
 	private:
 		HINSTANCE				m_hInst = nullptr;	//!<アプリケーションのインスタンス。
 		HWND					m_hWnd = nullptr;	//!<ウィンドウハンドル。
 		D3D_DRIVER_TYPE			m_driverType = D3D_DRIVER_TYPE_NULL; //!<ドライバの種類のオプション。
 		D3D_FEATURE_LEVEL		m_featureLevel = D3D_FEATURE_LEVEL_11_0;	//!<Direct3D デバイスのターゲットとなる機能セット。
 		ID3D11Device*			m_pd3dDevice = nullptr;						//!<D3D11デバイス。
+		CRenderContext			m_renderContext;							//!<レンダリングコンテキスト。
 		ID3D11DeviceContext*	m_pImmediateContext = nullptr;				//!<D3D11即時デバイスコンテキスト。
 		IDXGISwapChain*			m_pSwapChain = nullptr;						//!<SwapChain。
 		ID3D11RenderTargetView*	m_pRenderTargetView = nullptr;				//!<メインレンダリングターゲット。
