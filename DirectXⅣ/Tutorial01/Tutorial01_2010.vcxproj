@@ -377,9 +377,10 @@
     <ClCompile Include="tkEngine2\gameObject\tkGameObject.cpp" />
     <ClCompile Include="tkEngine2\gameObject\tkgameobjectmanager.cpp" />
     <ClCompile Include="tkEngine2\gameObject\tkTransform.cpp" />
+    <ClCompile Include="tkEngine2\graphics\GPUPipelineBuffer\tkStructuredBuffer.cpp" />
+    <ClCompile Include="tkEngine2\graphics\GPUPipelineBuffer\tkVertexBuffer.cpp" />
     <ClCompile Include="tkEngine2\graphics\tkRenderContext.cpp" />
     <ClCompile Include="tkEngine2\graphics\tkShader.cpp" />
-    <ClCompile Include="tkEngine2\graphics\tkVertexBuffer.cpp" />
     <ClCompile Include="tkEngine2\math\tkAabb.cpp" />
     <ClCompile Include="tkEngine2\math\tkMath.cpp" />
     <ClCompile Include="tkEngine2\math\tkMatrix.cpp" />
@@ -397,9 +398,10 @@
     <ClInclude Include="tkEngine2\gameObject\tkgameobject.h" />
     <ClInclude Include="tkEngine2\gameObject\tkGameObjectManager.h" />
     <ClInclude Include="tkEngine2\gameObject\tkTransform.h" />
+    <ClInclude Include="tkEngine2\graphics\GPUPipelineBuffer\tkStructuredBuffer.h" />
+    <ClInclude Include="tkEngine2\graphics\GPUPipelineBuffer\tkVertexBuffer.h" />
     <ClInclude Include="tkEngine2\graphics\tkRenderContext.h" />
     <ClInclude Include="tkEngine2\graphics\tkShader.h" />
-    <ClInclude Include="tkEngine2\graphics\tkVertexBuffer.h" />
     <ClInclude Include="tkEngine2\math\tkAabb.h" />
     <ClInclude Include="tkEngine2\math\tkMath.h" />
     <ClInclude Include="tkEngine2\math\tkMatrix.h" />

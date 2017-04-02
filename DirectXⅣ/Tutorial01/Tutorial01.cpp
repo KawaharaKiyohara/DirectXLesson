@@ -5,13 +5,14 @@
 #include "tkEngine2/tkEnginePreCompile.h"
 #include "tkEngine2/tkEngine.h"
 #include "tkEngine2\graphics\tkShader.h"
-#include "tkEngine2/graphics/tkVertexBuffer.h"
+#include "tkEngine2/graphics/GPUPipelineBuffer/tkVertexBuffer.h"
 
 using namespace tkEngine2;
 
 class CTriangleDraw : public IGameObject {
 	CShader m_vsShader;
 	CShader m_psShader;
+	CShader m_csShader;
 	CVertexBuffer m_vertexBuffer;
 	struct SSimpleVertex {
 		CVector3 pos;
@@ -21,7 +22,7 @@ public:
 	{
 		m_vsShader.Load("Assets/shader/Tutorial02.fx", "VS", CShader::EnType::VS);
 		m_psShader.Load("Assets/shader/Tutorial02.fx", "PS", CShader::EnType::PS);
-
+		m_csShader.Load("Assets/shader/BasicCompute11.fx", "CSMain", CShader::EnType::CS);
 		SSimpleVertex vertices[] =
 		{
 			CVector3(0.0f, 0.5f, 0.5f),

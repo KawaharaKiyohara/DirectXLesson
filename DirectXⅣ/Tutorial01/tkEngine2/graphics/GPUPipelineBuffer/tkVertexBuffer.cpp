@@ -3,7 +3,7 @@
  */
 
 #include "tkEngine2/tkEnginePreCompile.h"
-#include "tkEngine2/graphics/tkVertexBuffer.h"
+#include "tkEngine2/graphics/GPUPipelineBuffer/tkVertexBuffer.h"
 #include "tkEngine2/tkEngine.h"
 
 namespace tkEngine2{

@@ -38,6 +38,7 @@ namespace tkEngine2{
 				((ID3D11PixelShader*)m_shader)->Release();
 				break;
 			case EnType::CS:
+				((ID3D11ComputeShader*)m_shader)->Release();
 				break;
 			}
 			m_shader = nullptr;
@@ -69,8 +70,9 @@ namespace tkEngine2{
 		int fileSize = 0;
 		ReadFile(filePath, text, fileSize);
 		static const char* shaderModelNames[] = {
-			"vs_4_0",
-			"ps_4_0",
+			"vs_5_0",
+			"ps_5_0",
+			"cs_5_0"
 		};
 		hr = D3DCompile(text, fileSize, nullptr, nullptr, nullptr, entryFuncName, 
 			shaderModelNames[(int)shaderType], dwShaderFlags, 0, &blobOut.res, &errorBlob.res);
@@ -114,6 +116,10 @@ namespace tkEngine2{
 		}break;
 		case EnType::CS:{
 			//コンピュートシェーダー。
+			hr = pD3DDevice->CreateComputeShader(blobOut.res->GetBufferPointer(), blobOut.res->GetBufferSize(), nullptr, (ID3D11ComputeShader**)&m_shader);
+			if (FAILED(hr)) {
+				return false;
+			}
 		}break;
 		}
 	    return true;

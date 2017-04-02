@@ -29,6 +29,9 @@
     <Filter Include="tkEngine2\graphics">
       <UniqueIdentifier>{33204174-8e86-4a59-9199-649c4d264479}</UniqueIdentifier>
     </Filter>
+    <Filter Include="tkEngine2\graphics\GPUPipelineBuffer">
+      <UniqueIdentifier>{cd825c4d-dcaf-4896-9efd-ce5afc90016d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tkEngine2\tkEngine.cpp">
@@ -64,8 +67,11 @@
     <ClCompile Include="tkEngine2\graphics\tkShader.cpp">
       <Filter>tkEngine2\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="tkEngine2\graphics\tkVertexBuffer.cpp">
-      <Filter>tkEngine2\graphics</Filter>
+    <ClCompile Include="tkEngine2\graphics\GPUPipelineBuffer\tkVertexBuffer.cpp">
+      <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="tkEngine2\graphics\GPUPipelineBuffer\tkStructuredBuffer.cpp">
+      <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -120,8 +126,11 @@
     <ClInclude Include="tkEngine2\graphics\tkShader.h">
       <Filter>tkEngine2\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="tkEngine2\graphics\tkVertexBuffer.h">
-      <Filter>tkEngine2\graphics</Filter>
+    <ClInclude Include="tkEngine2\graphics\GPUPipelineBuffer\tkVertexBuffer.h">
+      <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="tkEngine2\graphics\GPUPipelineBuffer\tkStructuredBuffer.h">
+      <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

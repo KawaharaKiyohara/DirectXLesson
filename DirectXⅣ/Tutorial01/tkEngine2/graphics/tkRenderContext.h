@@ -6,7 +6,7 @@
 
 
 #include "tkEngine2/graphics/tkShader.h"
-#include "tkEngine2/graphics/tkVertexBuffer.h"
+#include "tkEngine2/graphics/GPUPipelineBuffer/tkVertexBuffer.h"
 
 namespace tkEngine2{
 	class CVertexBuffer;
