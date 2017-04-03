@@ -20,3 +20,8 @@
 
 #include "gameObject/tkGameObjectManager.h"
 
+#include "tkEngine2\graphics\tkShader.h"
+#include "tkEngine2/graphics/GPUBuffer/tkVertexBuffer.h"
+#include "tkEngine2/graphics/GPUBuffer/tkStructuredBuffer.h"
+#include "tkEngine2/graphics/GPUView/tkShaderResourceView.h"
+#include "tkEngine2/graphics/GPUView/tkUnorderedAccessView.h"

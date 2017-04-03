@@ -3,7 +3,7 @@
  */
 
 #include "tkEngine2/tkEnginePreCompile.h"
-#include "tkEngine2/graphics/GPUPipelineBuffer/tkStructuredBuffer.h"
+#include "tkEngine2/graphics/GPUBuffer/tkStructuredBuffer.h"
 #include "tkEngine2/tkEngine.h"
 
 namespace tkEngine2{
@@ -13,8 +13,16 @@ namespace tkEngine2{
 	CStructuredBuffer::~CStructuredBuffer()
 	{
 	}
+	void CStructuredBuffer::Release()
+	{
+		if (m_structuredBuffer != nullptr) {
+			m_structuredBuffer->Release();
+			m_structuredBuffer = nullptr;
+		}
+	}
 	bool CStructuredBuffer::Create(int numElement, int elementSize, const void* pInitData)
 	{
+		Release();
 		D3D11_BUFFER_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
 		//UAVとSRVにバインド可能。

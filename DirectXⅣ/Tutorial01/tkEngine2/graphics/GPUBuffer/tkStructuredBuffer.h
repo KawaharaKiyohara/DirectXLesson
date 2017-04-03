@@ -26,6 +26,13 @@ namespace tkEngine2{
 		{
 			return m_structuredBuffer;
 		}
+		/*!
+		*@brief	開放。
+		*@details
+		* この関数はデストラクタからもコールされています。
+		* 明示的なタイミングで開放したい場合に呼び出してください。
+		*/
+		void Release();
 	private:
 		ID3D11Buffer*		m_structuredBuffer = nullptr;	//!<StructuredBuffer
 	};

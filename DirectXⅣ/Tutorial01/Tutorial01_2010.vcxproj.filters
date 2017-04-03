@@ -29,7 +29,10 @@
     <Filter Include="tkEngine2\graphics">
       <UniqueIdentifier>{33204174-8e86-4a59-9199-649c4d264479}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tkEngine2\graphics\GPUPipelineBuffer">
+    <Filter Include="tkEngine2\graphics\GPUView">
+      <UniqueIdentifier>{d73e5ec2-229e-42dc-887f-1bf7c7cac7d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tkEngine2\graphics\GPUBuffer">
       <UniqueIdentifier>{cd825c4d-dcaf-4896-9efd-ce5afc90016d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -67,14 +70,20 @@
     <ClCompile Include="tkEngine2\graphics\tkShader.cpp">
       <Filter>tkEngine2\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="tkEngine2\graphics\GPUPipelineBuffer\tkVertexBuffer.cpp">
-      <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
+    <ClCompile Include="tkEngine2\graphics\GPUView\tkUnorderedAccessView.cpp">
+      <Filter>tkEngine2\graphics\GPUView</Filter>
     </ClCompile>
-    <ClCompile Include="tkEngine2\graphics\GPUPipelineBuffer\tkStructuredBuffer.cpp">
-      <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
+    <ClCompile Include="tkEngine2\graphics\GPUView\tkShaderResourceView.cpp">
+      <Filter>tkEngine2\graphics\GPUView</Filter>
     </ClCompile>
-    <ClCompile Include="tkEngine2\graphics\GPUPipelineBuffer\tkConstantBuffer.cpp">
-      <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
+    <ClCompile Include="tkEngine2\graphics\GPUBuffer\tkVertexBuffer.cpp">
+      <Filter>tkEngine2\graphics\GPUBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="tkEngine2\graphics\GPUBuffer\tkConstantBuffer.cpp">
+      <Filter>tkEngine2\graphics\GPUBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="tkEngine2\graphics\GPUBuffer\tkStructuredBuffer.cpp">
+      <Filter>tkEngine2\graphics\GPUBuffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -129,14 +138,20 @@
     <ClInclude Include="tkEngine2\graphics\tkShader.h">
       <Filter>tkEngine2\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="tkEngine2\graphics\GPUPipelineBuffer\tkVertexBuffer.h">
-      <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
+    <ClInclude Include="tkEngine2\graphics\GPUView\tkShaderResourceView.h">
+      <Filter>tkEngine2\graphics\GPUView</Filter>
     </ClInclude>
-    <ClInclude Include="tkEngine2\graphics\GPUPipelineBuffer\tkStructuredBuffer.h">
-      <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
+    <ClInclude Include="tkEngine2\graphics\GPUView\tkUnorderedAccessView.h">
+      <Filter>tkEngine2\graphics\GPUView</Filter>
     </ClInclude>
-    <ClInclude Include="tkEngine2\graphics\GPUPipelineBuffer\tkConstantBuffer.h">
-      <Filter>tkEngine2\graphics\GPUPipelineBuffer</Filter>
+    <ClInclude Include="tkEngine2\graphics\GPUBuffer\tkStructuredBuffer.h">
+      <Filter>tkEngine2\graphics\GPUBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="tkEngine2\graphics\GPUBuffer\tkVertexBuffer.h">
+      <Filter>tkEngine2\graphics\GPUBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="tkEngine2\graphics\GPUBuffer\tkConstantBuffer.h">
+      <Filter>tkEngine2\graphics\GPUBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

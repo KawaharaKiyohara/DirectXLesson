@@ -4,15 +4,56 @@
 #include "stdafx.h"
 #include "tkEngine2/tkEnginePreCompile.h"
 #include "tkEngine2/tkEngine.h"
-#include "tkEngine2\graphics\tkShader.h"
-#include "tkEngine2/graphics/GPUPipelineBuffer/tkVertexBuffer.h"
 
 using namespace tkEngine2;
 
+class CComputeTest : public IGameObject {
+	struct BufType
+	{
+		int i;
+		float f;
+	};
+	CShader m_csShader;
+	CStructuredBuffer m_inputBuffer_0;	//!<入力用GPUバッファ0。
+	CStructuredBuffer m_inputBuffer_1;	//!<入力用GPUバッファ1。
+	CStructuredBuffer m_outputBuffer;	//!<出力用GPUバッファ。
+	static const UINT NUM_ELEMENTS = 1024;
+	BufType g_vBuf0[NUM_ELEMENTS];		//!<入力データ0。
+	BufType g_vBuf1[NUM_ELEMENTS];		//!<入力データ1。
+public:
+	CComputeTest()
+	{
+
+	}
+	~CComputeTest()
+	{
+
+	}
+	bool Start() override
+	{
+		//コンピュートシェーダーをロード。
+		m_csShader.Load("Assets/shader/BasicCompute11.fx", "CSMain", CShader::EnType::CS);
+		//StructuredBufferを作成。
+		m_inputBuffer_0.Create(NUM_ELEMENTS, sizeof(BufType), g_vBuf0);
+		m_inputBuffer_1.Create(NUM_ELEMENTS, sizeof(BufType), g_vBuf1);
+		return true;
+	}
+	void Update() override
+	{
+
+	}
+	void Render(CRenderContext& renderContext)
+	{
+
+	}
+};
+
 class CTriangleDraw : public IGameObject {
+	
 	CShader m_vsShader;
 	CShader m_psShader;
-	CShader m_csShader;
+	
+	
 	CVertexBuffer m_vertexBuffer;
 	struct SSimpleVertex {
 		CVector3 pos;
@@ -22,7 +63,7 @@ public:
 	{
 		m_vsShader.Load("Assets/shader/Tutorial02.fx", "VS", CShader::EnType::VS);
 		m_psShader.Load("Assets/shader/Tutorial02.fx", "PS", CShader::EnType::PS);
-		m_csShader.Load("Assets/shader/BasicCompute11.fx", "CSMain", CShader::EnType::CS);
+		
 		SSimpleVertex vertices[] =
 		{
 			CVector3(0.0f, 0.5f, 0.5f),
@@ -66,6 +107,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 	if (Engine().Init(initParam) == true) {
 		
 		NewGO<CTriangleDraw>(0);
+		NewGO<CComputeTest>(0);
 		//初期化に成功。
 		//ゲームループを実行。
 		Engine().RunGameLoop();
