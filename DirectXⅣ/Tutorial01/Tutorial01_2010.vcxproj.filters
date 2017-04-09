@@ -153,6 +153,9 @@
     <ClInclude Include="tkEngine2\graphics\GPUBuffer\tkConstantBuffer.h">
       <Filter>tkEngine2\graphics\GPUBuffer</Filter>
     </ClInclude>
+    <ClInclude Include="tkEngine2\graphics\tkMapper.h">
+      <Filter>tkEngine2\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">

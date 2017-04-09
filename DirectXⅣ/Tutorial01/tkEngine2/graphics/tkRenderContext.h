@@ -7,6 +7,8 @@
 
 #include "tkEngine2/graphics/tkShader.h"
 #include "tkEngine2/graphics/GPUBuffer/tkVertexBuffer.h"
+#include "tkEngine2/graphics/GPUView/tkShaderResourceView.h"
+#include "tkEngine2/graphics/GPUView/tkUnorderedAccessView.h"
 
 namespace tkEngine2{
 	class CVertexBuffer;
@@ -120,6 +122,8 @@ namespace tkEngine2{
 		}
 		/*!
 		* @brief	描画。
+		* @param[in]	vertexCount			頂点数。
+		* @param[in]	startVertexLocation	描画を開始する頂点の位置。大抵0で大丈夫。
 		*/
 		void Draw(
 			unsigned int vertexCount,
@@ -129,11 +133,43 @@ namespace tkEngine2{
 			m_pD3DDeviceContext->Draw(vertexCount, startVertexLocation);
 		}
 		/*!
+		* @brief	ディスパッチ。
+		* @details
+		*  コンピュートシェーダーを実行。
+		* @param[in]	threadGroupCountX	x 方向にディスパッチしたグループの数。
+		* @param[in]	threadGroupCountY	y 方向にディスパッチしたグループの数。
+		* @param[in]	thredGroupCountZ	ｚ 方向にディスパッチしたグループの数。
+		*/
+		void Dispatch(UINT threadGroupCountX, UINT threadGroupCountY, UINT thredGroupCountZ)
+		{
+			m_pD3DDeviceContext->Dispatch(threadGroupCountX, threadGroupCountY, thredGroupCountZ);
+		}
+		/*!
 		* @brief	入力レイアウトを設定。
 		*/
 		void SetInputLayout(ID3D11InputLayout* inputLayout)
 		{
 			m_pD3DDeviceContext->IASetInputLayout(inputLayout);
+		}
+		/*!
+		* @brief	リソースをコピー。
+		*@param[out]	destRes		コピー先。
+		*@param[in]		srcRes		コピー元。
+		*/
+		template<class TResource>
+		void CopyResource(TResource& destRes, TResource& srcRes)
+		{
+			m_pD3DDeviceContext->CopyResource(destRes.GetBody(), srcRes.GetBody());
+		}
+		template<class TBuffer>
+		void Map(TBuffer& buffer, UINT subresource, D3D11_MAP mapType, UINT mapFlags, D3D11_MAPPED_SUBRESOURCE& mappedResource)
+		{
+			m_pD3DDeviceContext->Map(buffer.GetBody(), subresource, mapType, mapFlags, &mappedResource);
+		}
+		template<class TBuffer>
+		void Unmap(TBuffer& buffer, UINT subresource)
+		{
+			m_pD3DDeviceContext->Unmap(buffer.GetBody(), subresource);
 		}
 	private:
 		ID3D11DeviceContext*			m_pD3DDeviceContext = nullptr;	//!<D3Dデバイスコンテキスト。

@@ -14,11 +14,10 @@ namespace tkEngine2{
 		~CStructuredBuffer();
 		/*!
 		* @brief	StructuredBufferを作成。
-		*@param[in]	numElement		要素数。
-		*@param[in]	elementSize		要素一個分のサイズ。
 		*@param[in]	pInitData		初期データ。
+		*@param[in]	bufferDesc		バッファ定義。
 		*/
-		bool Create(int numElement, int elementSize, const void* pInitData);
+		bool Create(const void* pInitData, D3D11_BUFFER_DESC& bufferDesc);
 		/*!
 		 * @brief	ID3D11Buffer*を取得。
 		 */

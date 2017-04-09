@@ -406,6 +406,7 @@
     <ClInclude Include="tkEngine2\graphics\GPUBuffer\tkVertexBuffer.h" />
     <ClInclude Include="tkEngine2\graphics\GPUView\tkShaderResourceView.h" />
     <ClInclude Include="tkEngine2\graphics\GPUView\tkUnorderedAccessView.h" />
+    <ClInclude Include="tkEngine2\graphics\tkMapper.h" />
     <ClInclude Include="tkEngine2\graphics\tkRenderContext.h" />
     <ClInclude Include="tkEngine2\graphics\tkShader.h" />
     <ClInclude Include="tkEngine2\math\tkAabb.h" />

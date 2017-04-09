@@ -6,7 +6,7 @@
 #define _TKLOG_H_
 
 
-namespace tkEngine{
+namespace tkEngine2{
 	/*!
 	 *@brief	ÉçÉOèoóÕ
 	 */
@@ -22,7 +22,7 @@ namespace tkEngine{
 }
 
 #if BUILD_LEVEL != BUILD_LEVEL_MASTER
-	#define TK_LOG( format, ... )	Log(format, __VA_ARGS__)
+	#define TK_LOG( format, ... )	tkEngine2::Log(format, __VA_ARGS__)
 #else // _DEBUG
 #define TK_LOG( format, ... )
 #endif // _DEBUG
