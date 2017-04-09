@@ -26,6 +26,13 @@ namespace tkEngine2{
 		 * 明示的に開放する必要があるときに使用してください。
 		 */
 		void Release();
+		/*!
+		*@brief	ID3D11ShaderResourceViewを取得。
+		*/
+		ID3D11ShaderResourceView*& GetBody()
+		{
+			return m_srv;
+		}
 	private:
 		ID3D11ShaderResourceView*		m_srv = nullptr;
 	};

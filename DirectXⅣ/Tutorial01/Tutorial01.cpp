@@ -20,6 +20,9 @@ class CComputeTest : public IGameObject {
 	static const UINT NUM_ELEMENTS = 1024;
 	BufType g_vBuf0[NUM_ELEMENTS];		//!<入力データ0。
 	BufType g_vBuf1[NUM_ELEMENTS];		//!<入力データ1。
+	CShaderResourceView m_inputSRV_0;	//!<入力SRV0。
+	CShaderResourceView m_inputSRV_1;	//!<入力SRV1。
+	CUnorderedAccessView m_outputUAV;	//!<出力UAV。
 public:
 	CComputeTest()
 	{
@@ -32,10 +35,18 @@ public:
 	bool Start() override
 	{
 		//コンピュートシェーダーをロード。
-		m_csShader.Load("Assets/shader/BasicCompute11.fx", "CSMain", CShader::EnType::CS);
-		//StructuredBufferを作成。
-		m_inputBuffer_0.Create(NUM_ELEMENTS, sizeof(BufType), g_vBuf0);
-		m_inputBuffer_1.Create(NUM_ELEMENTS, sizeof(BufType), g_vBuf1);
+		TK_ASSERT(m_csShader.Load("Assets/shader/BasicCompute11.fx", "CSMain", CShader::EnType::CS), "Failed");
+		//入力用のStructuredBufferを作成。
+		TK_ASSERT(m_inputBuffer_0.Create(NUM_ELEMENTS, sizeof(BufType), g_vBuf0), "Failed");
+		TK_ASSERT(m_inputBuffer_1.Create(NUM_ELEMENTS, sizeof(BufType), g_vBuf1), "Failed");
+		//出力用のStructuredBufferを作成。
+		TK_ASSERT(m_outputBuffer.Create(NUM_ELEMENTS, sizeof(BufType), NULL), "Failed");
+
+		//SRVを作成。
+		TK_ASSERT(m_inputSRV_0.Create(m_inputBuffer_0), "Failed");
+		TK_ASSERT(m_inputSRV_1.Create(m_inputBuffer_1), "Failed");
+		//UAVを作成。
+		TK_ASSERT(m_outputUAV.Create(m_outputBuffer), "Failed");
 		return true;
 	}
 	void Update() override
@@ -44,6 +55,13 @@ public:
 	}
 	void Render(CRenderContext& renderContext)
 	{
+		//コンピュートシェーダーを設定。
+		renderContext.CSSetShader(m_csShader);
+		//SRVを設定。
+		renderContext.CSSetShaderResource(0, m_inputSRV_0);
+		renderContext.CSSetShaderResource(1, m_inputSRV_1);
+		//UAVを設定。
+		renderContext.CSSetUnorderedAccessView(0, m_outputUAV);
 
 	}
 };

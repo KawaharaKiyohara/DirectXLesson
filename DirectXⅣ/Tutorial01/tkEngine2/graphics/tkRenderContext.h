@@ -93,6 +93,32 @@ namespace tkEngine2{
 			m_pD3DDeviceContext->PSSetShader((ID3D11PixelShader*)shader.GetBody(), NULL, 0);
 		}
 		/*!
+		* @brief	コンピュートシェーダーを設定。
+		*@param[in]	shader		コンピュートシェーダー。
+		*/
+		void CSSetShader(CShader& shader)
+		{
+			m_pD3DDeviceContext->CSSetShader((ID3D11ComputeShader*)shader.GetBody(), NULL, 0);
+		}
+		/*!
+		* @brief	コンピュートシェーダーにSRVを設定。。
+		*@param[in]	slotNo		スロット番号
+		*@param[in]	srv			シェーダーリソースビュー。
+		*/
+		void CSSetShaderResource(int slotNo, CShaderResourceView& srv) 
+		{
+			m_pD3DDeviceContext->CSSetShaderResources(slotNo, 1, &srv.GetBody());
+		}
+		/*!
+		* @brief	コンピュートシェーダーにUAVを設定。
+		*@param[in]	slotNo		スロット番号
+		*@param[in]	uav			UAV。
+		*/
+		void CSSetUnorderedAccessView(int slotNo, CUnorderedAccessView& uav)
+		{
+			m_pD3DDeviceContext->CSSetUnorderedAccessViews(slotNo, 1, &uav.GetBody(), NULL);
+		}
+		/*!
 		* @brief	描画。
 		*/
 		void Draw(

@@ -27,6 +27,13 @@ namespace tkEngine2{
 		 * 明示的に開放する必要があるときに使用してください。
 		 */
 		void Release();
+		/*!
+		*@brief	ID3D11UnorderedAccessViewを取得。
+		*/
+		ID3D11UnorderedAccessView*& GetBody()
+		{
+			return m_uav;
+		}
 	private:
 		ID3D11UnorderedAccessView*	m_uav = nullptr;
 	};
