@@ -6,25 +6,19 @@
 #include "stdafx.h"
 #include "tkEngine2/tkEnginePreCompile.h"
 #include "tkEngine2/tkEngine.h"
+#include "tkEngine2/timer/tkStopwatch.h"
 
 using namespace tkEngine2;
 
 class CComputeTest : public IGameObject {
-	struct BufType
-	{
-		int i;
-		float f;
-	};
+	
 	CShader m_csShader;						//!<コンピュートシェーダー。
-	CStructuredBuffer m_inputBuffer_0;		//!<入力用GPUバッファ0。
-	CStructuredBuffer m_inputBuffer_1;		//!<入力用GPUバッファ1。
+	CStructuredBuffer m_inputBuffer;		//!<入力用GPUバッファ0。
 	CStructuredBuffer m_outputBuffer;		//!<出力用GPUバッファ。
 	CStructuredBuffer m_outputBufferCPU;	//!<CPUでコンピュートの結果を受け取るためのバッファ。
-	static const UINT NUM_ELEMENTS = 64;
-	BufType g_vBuf0[NUM_ELEMENTS];			//!<入力データ0。
-	BufType g_vBuf1[NUM_ELEMENTS];			//!<入力データ1。
-	CShaderResourceView m_inputSRV_0;		//!<入力SRV0。
-	CShaderResourceView m_inputSRV_1;		//!<入力SRV1。
+	static const UINT NUM_STUDENT = 10000000;
+	int m_score[NUM_STUDENT];				//!<スコアの配列。
+	CShaderResourceView m_inputSRV_0;		//!<入力SRV。
 	CUnorderedAccessView m_outputUAV;		//!<出力UAV。
 public:
 	CComputeTest()
@@ -39,11 +33,8 @@ public:
 	{
 		//コンピュートシェーダーをロード。
 		m_csShader.Load("Assets/shader/BasicCompute11.fx", "CSMain", CShader::EnType::CS);
-		for (int i = 0; i < NUM_ELEMENTS; i++) {
-			g_vBuf0[i].i = i;
-			g_vBuf0[i].f = (float)(i * i);
-			g_vBuf1[i].i = i;
-			g_vBuf1[i].f = (float)(i * i);
+		for (int i = 0; i < NUM_STUDENT; i++) {
+			m_score[i] = i % 100;
 		}
 		//入力用のStructuredBufferを作成。
 		{
@@ -51,20 +42,21 @@ public:
 			ZeroMemory(&desc, sizeof(desc));
 			//SRVとしてバインド可能。
 			desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;	//SRVとしてバインド可能。
-			desc.ByteWidth = NUM_ELEMENTS * sizeof(BufType);
+			desc.ByteWidth = NUM_STUDENT * sizeof(int);
 			desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-			desc.StructureByteStride = sizeof(BufType);
-			m_inputBuffer_0.Create(g_vBuf0, desc);
-			m_inputBuffer_1.Create(g_vBuf1, desc);
+			desc.StructureByteStride = sizeof(int);
+			//StructuredBufferを作成。VRAM上にメモリを確保して入力データを転送。
+			m_inputBuffer.Create(m_score, desc);
 		}
 		//出力用のStructuredBufferを作成。
 		{
 			D3D11_BUFFER_DESC desc;
 			ZeroMemory(&desc, sizeof(desc));
 			desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;	//UAVとしてバインド可能。
-			desc.ByteWidth = NUM_ELEMENTS * sizeof(BufType);
+			desc.ByteWidth = sizeof(int);
 			desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-			desc.StructureByteStride = sizeof(BufType);
+			desc.StructureByteStride = sizeof(int);
+			//StructuredBufferを作成。VRAM上に出力用のメモリを確保する。
 			m_outputBuffer.Create(NULL, desc);
 		}
 		//出力結果をCPUで見るためのバッファを作成。
@@ -75,14 +67,14 @@ public:
 			desc.Usage = D3D11_USAGE_STAGING;				//GPUからCPUへのデータコピーをサポートする。
 			desc.BindFlags = 0;								//どこにもバインドしない。
 			desc.MiscFlags = 0;
-			desc.ByteWidth = NUM_ELEMENTS * sizeof(BufType);
-			desc.StructureByteStride = sizeof(BufType);
+			desc.ByteWidth = sizeof(int);
+			desc.StructureByteStride = sizeof(int);
 			desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+			//StructuredBufferを作成。メインメモリ上に作成する。
 			m_outputBufferCPU.Create(NULL, desc);
 		}
 		//SRVを作成。
-		m_inputSRV_0.Create(m_inputBuffer_0);
-		m_inputSRV_1.Create(m_inputBuffer_1);
+		m_inputSRV_0.Create(m_inputBuffer);
 		//UAVを作成。
 		m_outputUAV.Create(m_outputBuffer);
 		return true;
@@ -97,25 +89,22 @@ public:
 		renderContext.CSSetShader(m_csShader);
 		//SRVを設定。
 		renderContext.CSSetShaderResource(0, m_inputSRV_0);
-		renderContext.CSSetShaderResource(1, m_inputSRV_1);
 		//UAVを設定。
 		renderContext.CSSetUnorderedAccessView(0, m_outputUAV);
+		CStopwatch sw;
+		sw.Start();
 		//コンピュートシェーダーを実行。
-		renderContext.Dispatch(NUM_ELEMENTS, 1, 1);
+		renderContext.Dispatch(1, 1, 1);
 		//CPUからアクセスできるバッファにコピー。
 		renderContext.CopyResource(m_outputBufferCPU, m_outputBuffer);
+		
 		//コンピュートシェーダーの結果を取得。
 		CMapper<CStructuredBuffer> mapper(renderContext, m_outputBufferCPU);
-		BufType* p = (BufType*)mapper.GetData();
+		int* p = (int*)mapper.GetData();
 		if (p) {
-			for (int i = 0; i < NUM_ELEMENTS; i++) {
-				TK_LOG("element ID = %d, p->i = %d, p->f = %f\n", i, p[i].i, p[i].f);
-			}
+			TK_LOG("平均点 %d, 計算時間 %lf\n", *p, sw.GetElapsed());
+			
 		}
-		else {
-			TK_LOG("p is null");
-		}
-
 	}
 };
 /*!

@@ -35,6 +35,9 @@
     <Filter Include="tkEngine2\graphics\GPUBuffer">
       <UniqueIdentifier>{cd825c4d-dcaf-4896-9efd-ce5afc90016d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="tkEngine2\timer">
+      <UniqueIdentifier>{62ff5b6a-645c-4701-a8f0-9a8444141987}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tkEngine2\tkEngine.cpp">
@@ -155,6 +158,9 @@
     </ClInclude>
     <ClInclude Include="tkEngine2\graphics\tkMapper.h">
       <Filter>tkEngine2\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="tkEngine2\timer\tkStopwatch.h">
+      <Filter>tkEngine2\timer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

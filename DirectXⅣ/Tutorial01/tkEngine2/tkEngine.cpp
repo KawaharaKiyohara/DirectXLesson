@@ -4,6 +4,7 @@
 #include "tkEngine2/tkEnginePreCompile.h"
 #include "tkEngine2/tkEngine.h"
 #include "tkEngine2/gameObject/tkGameObjectManager.h"
+#include "tkEngine2/timer/tkStopwatch.h"
 
 namespace tkEngine2 {
 	CEngine::CEngine()
@@ -165,10 +166,14 @@ namespace tkEngine2 {
 	}
 	void CEngine::Update()
 	{
+		CStopwatch sw;
+		sw.Start();
 		CGameObjectManager& goMgr = GameObjectManager();
 		goMgr.Execute(m_renderContext);
 
 		m_pSwapChain->Present(0, 0);
+		sw.Stop();
+		Log("1Frame time = %lf\n", sw.GetElapsed());
 	}
 	LRESULT CALLBACK CEngine::MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
