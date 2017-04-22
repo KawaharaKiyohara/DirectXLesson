@@ -16,7 +16,7 @@ class CComputeTest : public IGameObject {
 	CStructuredBuffer m_inputBuffer;		//!<入力用GPUバッファ0。
 	CStructuredBuffer m_outputBuffer;		//!<出力用GPUバッファ。
 	CStructuredBuffer m_outputBufferCPU;	//!<CPUでコンピュートの結果を受け取るためのバッファ。
-	static const UINT NUM_STUDENT = 10000000;
+	static const UINT NUM_STUDENT = 30;
 	int m_score[NUM_STUDENT];				//!<スコアの配列。
 	CShaderResourceView m_inputSRV_0;		//!<入力SRV。
 	CUnorderedAccessView m_outputUAV;		//!<出力UAV。
@@ -91,8 +91,6 @@ public:
 		renderContext.CSSetShaderResource(0, m_inputSRV_0);
 		//UAVを設定。
 		renderContext.CSSetUnorderedAccessView(0, m_outputUAV);
-		CStopwatch sw;
-		sw.Start();
 		//コンピュートシェーダーを実行。
 		renderContext.Dispatch(1, 1, 1);
 		//CPUからアクセスできるバッファにコピー。
@@ -102,7 +100,7 @@ public:
 		CMapper<CStructuredBuffer> mapper(renderContext, m_outputBufferCPU);
 		int* p = (int*)mapper.GetData();
 		if (p) {
-			TK_LOG("平均点 %d, 計算時間 %lf\n", *p, sw.GetElapsed());
+			TK_LOG("平均点 %d\n", *p);
 			
 		}
 	}
