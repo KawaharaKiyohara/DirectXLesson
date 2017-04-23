@@ -88,9 +88,7 @@
     <ClCompile Include="tkEngine2\graphics\GPUBuffer\tkStructuredBuffer.cpp">
       <Filter>tkEngine2\graphics\GPUBuffer</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Tutorial01.cpp" />
+    <ClCompile Include="Tutorial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tkEngine2\tkEngine.h">
