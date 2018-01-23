@@ -105,7 +105,7 @@ float4 PSMain( VS_OUTPUT In ) : COLOR
 	                    + In.normal * localNormal.z;
 	                     
 	//ワールドスペースの法線を使ってライティング。
-	float4 lig = CalcLight(worldNormal);
+	float4 lig = CalcLight(In.normal);
 	float4 diff = tex2D( g_diffuseMapSampler, In.uv );
 	float4 color = diff* lig;
 	return float4( color.xyz, 1.0f);

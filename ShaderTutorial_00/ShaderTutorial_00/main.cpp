@@ -110,9 +110,9 @@ HRESULT InitVB()
 	// Initialize three vertices for rendering a triangle
 	SVertex vertices[] =
 	{
-		{ -0.5f,  -0.5f, 0.0f, 1.0f, 0xffffff00, }, 
-		{ 0.0f, 0.5f, 0.0f, 1.0f, 0xff00ff00, },
-		{ 0.5f,  -0.5f, 0.0f, 1.0f, 0xff00ffff, },
+		{ -1.0f,  -1.0f, 0.0f, 1.0f, 0xffffff00, }, 
+		{ 0.0f, 1.0f, 0.0f, 1.0f, 0xff00ff00, },
+		{ 1.0f,  -1.0f, 0.0f, 1.0f, 0xff00ffff, },
 	};
 
 	// Create the vertex buffer. Here we are allocating enough memory

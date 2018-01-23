@@ -181,7 +181,7 @@ float4 PSMain( VS_OUTPUT In ) : COLOR
 	if(g_isHasSpecularMap){
 		//スペキュラマップがある
 		float3 spec = CalcSpecular(In.worldPos, normal);
-		spec *= tex2D(g_specularMapSampler, In.Tex0).a;
+		spec *= tex2D(g_specularMapSampler, In.Tex0).r;
 		lig.xyz += spec;
 	}
 	color *= lig;

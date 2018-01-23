@@ -36,7 +36,7 @@ VS_OUTPUT VSMain( VS_INPUT In )
  */
 float4 PSMain( VS_OUTPUT In ) : COLOR
 {
-	return float4(1.0f, 0.0f, 0.0f, 1.0f);
+	return float4(1.0f, 1.0f, 0.0f, 1.0f);
 }
 
 technique SkinModel

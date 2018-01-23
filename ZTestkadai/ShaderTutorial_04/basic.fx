@@ -57,11 +57,26 @@ float4 PSMain( VS_OUTPUT In ) : COLOR
 	return tex2D( g_diffuseTextureSampler, In.uv ) ;
 }
 
+/*!
+ *@brief	ピクセルシェーダー。
+ */
+float4 PSMainHoge( VS_OUTPUT In ) : COLOR
+{
+	return float4( 0.5f, 0.5f, 0.5f, 1.0f);
+}
+
 technique SkinModel
 {
 	pass p0
 	{
 		VertexShader 	= compile vs_2_0 VSMain();
 		PixelShader 	= compile ps_2_0 PSMain();
+	}
+}
+technique Hoge{
+	pass p0
+	{
+		VertexShader 	= compile vs_2_0 VSMain();
+		PixelShader 	= compile ps_2_0 PSMainHoge();
 	}
 }

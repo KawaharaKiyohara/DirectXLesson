@@ -176,8 +176,11 @@ VOID Render()
 		g_pEffect->BeginPass(0);
 
 		//定数レジスタに設定するカラー。
-		D3DXVECTOR4 color( 1.0f, 0.0f, 0.0f, 1.0f);
+		D3DXVECTOR4 color( 0.0f, 1.0f, 0.0f, 1.0f);
 		g_pEffect->SetVector("g_color", &color);		//シェーダー側のシェーダー定数の名前で、データの転送先を指定する。
+		D3DXVECTOR4 addColor(1.0f, 0.5f, 0.5f, 1.0f);
+		g_pEffect->SetVector("g_addColor", &addColor);
+
 		g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
 		g_pd3dDevice->SetStreamSource(0, g_pVB, 0, sizeof(SVertex));
 		g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);

@@ -15,8 +15,9 @@ namespace {
 		D3DXMATRIX* rotationMatrix,
 		D3DXMATRIX* viewMatrix,
 		D3DXMATRIX* projMatrix,
-		Light* light
+		Light* light,
 		//ハンズオン 2-3
+		LPDIRECT3DTEXTURE9 normalMap
 	)
 	{
 		D3DXMESHCONTAINER_DERIVED* pMeshContainer = (D3DXMESHCONTAINER_DERIVED*)pMeshContainerBase;
@@ -52,7 +53,16 @@ namespace {
 
 		}
 		//ハンズオン 2-4 
-		
+		if(normalMap != NULL) {
+			//法線マップがあるので、シェーダーに転送する。
+			pEffect->SetTexture("g_normalTexture", normalMap);
+			//法線マップのあり、なしのフラグをtrueにする。
+			pEffect->SetBool("g_isHasNormalMap", true);
+		}
+		else {
+			//法線マップのあり、なしのフラグをfalseにする。
+			pEffect->SetBool("g_isHasNormalMap", false);
+		}
 		if (pMeshContainer->pSkinInfo != NULL)
 		{
 			//スキン情報有り。
@@ -132,8 +142,9 @@ namespace {
 		D3DXMATRIX* rotationMatrix,
 		D3DXMATRIX* viewMatrix, 
 		D3DXMATRIX* projMatrix,
-		Light* light
+		Light* light,
 		//ハンズオン 2-3
+		LPDIRECT3DTEXTURE9 normalMap
 	)
 	{
 		LPD3DXMESHCONTAINER pMeshContainer;
@@ -150,8 +161,9 @@ namespace {
 				rotationMatrix,
 				viewMatrix,
 				projMatrix,
-				light
+				light,
 				//ハンズオン 2-3
+				normalMap
 				);
 
 			pMeshContainer = pMeshContainer->pNextMeshContainer;
@@ -167,8 +179,9 @@ namespace {
 				rotationMatrix,
 				viewMatrix,
 				projMatrix,
-				light
+				light,
 				//ハンズオン 2-3
+				normalMap
 				);
 		}
 
@@ -182,8 +195,9 @@ namespace {
 				rotationMatrix,
 				viewMatrix,
 				projMatrix,
-				light
+				light,
 				//ハンズオン 2-3
+				normalMap
 				);
 		}
 	}
@@ -229,8 +243,9 @@ void SkinModel::Draw(D3DXMATRIX* viewMatrix, D3DXMATRIX* projMatrix)
 			&rotationMatrix,
 			viewMatrix,
 			projMatrix,
-			light
+			light,
 			//ハンズオン 2-3
+			normalMap
 		);
 	}
 }

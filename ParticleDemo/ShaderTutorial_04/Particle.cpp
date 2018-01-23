@@ -104,6 +104,7 @@ void CParticle::Init( const SParicleEmitParameter& param )
 void CParticle::Update()
 {
 	float deltaTime = 1.0f / 60.0f;
+	//moveSpeed.y -= 0.1f;
 	D3DXVECTOR3 add = moveSpeed * deltaTime;
 	position += add;
 #if 0
@@ -155,23 +156,38 @@ void CParticle::Render(const D3DXMATRIX& viewMatrix, const D3DXMATRIX& projMatri
 {
 	D3DXMATRIX m, mTrans;
 	D3DXMatrixTranslation(&mTrans, position.x, position.y, position.z);
+	//①　カメラの回転行列を求める。
+	//②　1で求めた回転行列をワールド行列に乗算する。
+	D3DXMATRIX viewRotMatrix;
+	//カメラ行列の逆行列を求める。
+	D3DXMatrixInverse(
+		&viewRotMatrix, 
+		NULL, 
+		&viewMatrix
+	); 
+														  //カメラの平行移動成分を0にする。
+	viewRotMatrix.m[3][0] = 0.0f;
+	viewRotMatrix.m[3][1] = 0.0f;
+	viewRotMatrix.m[3][2] = 0.0f;
+	viewRotMatrix.m[3][3] = 1.0f;
 
-	m = mTrans * viewMatrix * projMatrix;
+	m = viewRotMatrix * mTrans * viewMatrix * projMatrix;
 
-/*	g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);*/
-	//アルファブレンディングを有効にする。
 	g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	//アルファブレンディングを有効にする。
+	/*g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
 	g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-
-
-	shaderEffect->SetTechnique("ColorTexPrimAdd");
+	*/
+	shaderEffect->SetTechnique("ColorTexPrimTrans");
+//	shaderEffect->SetTechnique("ColorTexPrimAdd");
 	
 	shaderEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
 	shaderEffect->BeginPass( 0);
 	g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+
 
 	shaderEffect->SetValue("g_mWVP", &m, sizeof(m));
 	shaderEffect->SetTexture("g_texture", texture);

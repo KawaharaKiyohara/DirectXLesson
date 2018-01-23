@@ -85,7 +85,7 @@ float4 PSMain( VS_OUTPUT In ) : COLOR
 	//モデルのワールド頂点座標はIn.worldPos、ワールド法線はIn.normal。
 	//ライトの方向はg_diffuseLightDirection[0]とする。
 	
-	
+	lig.xyz += [計算されたスペキュラライトの強さ]
 	//アンビエントライトを加算。
 	lig += g_ambientLight;
 	float4 color = tex2D( g_diffuseTextureSampler, In.uv );

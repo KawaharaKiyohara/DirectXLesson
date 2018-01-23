@@ -8,9 +8,9 @@ sampler g_SceneSampler =
 sampler_state
 {
     Texture = <g_scene>;
-    MipFilter = LINEAR;
-    MinFilter = LINEAR;
-    MagFilter = LINEAR;
+    MipFilter = LINEAR | ANISOTROPIC;
+    MinFilter = LINEAR | ANISOTROPIC;
+    MagFilter = LINEAR | ANISOTROPIC;
     AddressU = CLAMP;
     AddressV = CLAMP;
 };

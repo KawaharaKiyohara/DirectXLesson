@@ -4,7 +4,7 @@
 
 
 float4 g_color;		//カラー。これがシェーダー定数。CPUから値が転送されてくる。
-
+float4 g_addColor;	//加算合成を行うカラー。
 struct VS_INPUT{
 	float4	pos		: POSITION;
 	float4	color	: COLOR0;
@@ -23,10 +23,11 @@ VS_OUTPUT VSMain( VS_INPUT In )
 	VS_OUTPUT Out;
 	Out.pos = In.pos;
 	Out.color = In.color * g_color;	//頂点カラーに定数レジスタに設定されたカラーを乗算してみる。
+	Out.color += g_addColor;
 	return Out;
 }
 /*!
- *@brief	頂点シェーダー。
+ *@brief	ピクセルシェーダー。
  */
 float4 PSMain( VS_OUTPUT In ) : COLOR
 {

@@ -113,9 +113,9 @@ HRESULT InitVB()
 	// Initialize three vertices for rendering a triangle
 	SVertex vertices[] =
 	{
-		{ -1.0f,  -1.0f, 0.0f, 1.0f, 0xffffff00, }, 
-		{ 0.0f, 1.0f, 0.0f, 1.0f, 0xff00ff00, },
-		{ 1.0f,  -1.0f, 0.0f, 1.0f, 0xff00ffff, },
+		{ -1.0f,  -1.0f, 0.0f, 1.0f, 0xffffffff, }, 
+		{ 0.0f, 1.0f, 0.0f, 1.0f, 0xffffffff, },
+		{ 1.0f,  -1.0f, 0.0f, 1.0f, 0xffffffff, },
 	};
 
 	// Create the vertex buffer. Here we are allocating enough memory
@@ -181,14 +181,14 @@ void InitProjectionMatrix()
 VOID Render()
 {
 	// Clear the backbuffer to a blue color
-	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET| D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
+	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET| D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 
 	static int renderCount = 0;
 	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
 	{
 		D3DXVECTOR4 colorTbl[] = {
-			D3DXVECTOR4(1.0f, 0.0f, 0.0f, 1.0f),
-			D3DXVECTOR4(0.0f, 0.0f, 1.0f, 1.0f),
+			D3DXVECTOR4(1.0f, 0.0f, 0.0f, 0.5f),
+			D3DXVECTOR4(0.0f, 0.0f, 1.0f, 0.5f),
 		};
 		renderCount++;
 		D3DXVECTOR3 trans[] = {
@@ -199,6 +199,19 @@ VOID Render()
 			//シェーダー適用開始。
 			g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 			g_pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+			//αブレンディングを有効にする。
+			g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		
+			//ソースカラーはソースαを乗算する。
+			/*g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+			//ディスティネーションカラーは1.0-ソースα。
+			g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+			*/
+			//ソースカラーはソースαを乗算する。
+			g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+			//ディスティネーションカラーは1.0-ソースα。
+			g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+
 			g_pEffect->SetTechnique("ColorPrim");
 			g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
 			g_pEffect->BeginPass(0);

@@ -97,7 +97,10 @@ void InitProjectionMatrix()
 	D3DXMatrixIdentity( &g_worldMatrix );
 	D3DXMatrixIdentity( &g_rotationMatrix );
 	
-	D3DXVECTOR3 vEyePt(0.0f, 3.0f, -5.0f);
+	//D3DXVECTOR3 vEyePt(0.0f, 3.0f, -5.0f);
+	vEyePt.x = 0.0f;
+	vEyePt.y = 3.0f;
+	vEyePt.z = -5.0f;
     D3DXVECTOR3 vLookatPt( 0.0f, 0.0f, 0.0f );
     D3DXVECTOR3 vUpVec( 0.0f, 1.0f, 0.0f );
     D3DXMATRIXA16 matView;

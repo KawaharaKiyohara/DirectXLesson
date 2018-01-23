@@ -1,3 +1,4 @@
 ﻿  main.cpp
-c:\github\directxlesson\ztestkadai\shadertutorial_04\main.cpp(110): warning C4018: '<': signed/unsigned mismatch
-  ShaderTutorial_04.vcxproj -> C:\GitHub\DirectXLesson\ZTestkadai\x64\Debug\ShaderTutorial_04.exe
+c:\users\takay\documents\github\directxlesson\ztestkadai\shadertutorial_04\main.cpp(110): warning C4018: '<': signed と unsigned の数値を比較しようとしました。
+  ShaderTutorial_04.vcxproj -> C:\Users\Takay\Documents\GitHub\DirectXLesson\ZTestkadai\x64\Debug\ShaderTutorial_04.exe
+  ShaderTutorial_04.vcxproj -> C:\Users\Takay\Documents\GitHub\DirectXLesson\ZTestkadai\x64\Debug\ShaderTutorial_04.pdb (Full PDB)

@@ -24,6 +24,10 @@ LPD3DXMESH				g_pMesh = NULL;
 LPDIRECT3DTEXTURE9*	 	g_pMeshTextures = NULL; 	// Textures for our mesh
 DWORD              	 	g_dwNumMaterials = 0L;   	// Number of mesh materials
 
+float					g_uvScroll = 0.0f;
+float					g_alpha = 0.0f;
+float					g_addAlpha = 0.1f;
+
 /*!
  *@brief	シェーダーエフェクトファイル(*.fx)をロード。
  */
@@ -149,6 +153,22 @@ VOID Render()
 		g_pEffect->SetTechnique("SkinModel");
 		g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
 		g_pEffect->BeginPass(0);
+
+		g_uvScroll += 0.1f;
+		g_pEffect->SetFloat("g_uvScroll", g_uvScroll);
+
+		g_alpha += g_addAlpha;
+		if (g_alpha < 0.0f) {
+			//α値が0.0より小さくなった。
+			g_addAlpha = 0.1f;
+			g_alpha = 0.0f;
+		}
+		if (g_alpha > 1.0f) {
+			//α値が1.0より大きくなった。
+			g_addAlpha = -0.1f;
+			g_alpha = 1.0f;
+		}
+		g_pEffect->SetFloat("g_alpha", g_alpha);
 
 		//定数レジスタに設定するカラー。
 		D3DXVECTOR4 color( 1.0f, 0.0f, 0.0f, 1.0f);

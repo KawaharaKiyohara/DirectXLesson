@@ -80,7 +80,7 @@ HRESULT InitD3D(HWND hWnd)
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.EnableAutoDepthStencil = TRUE;
-	d3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
+	d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 	// Create the D3DDevice
 	if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
@@ -198,6 +198,7 @@ VOID Render()
 		for (int i = 0; i < 2; i++) {
 			//シェーダー適用開始。
 			g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+			g_pd3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_GREATER);
 			g_pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 			g_pEffect->SetTechnique("ColorPrim");
 			g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);

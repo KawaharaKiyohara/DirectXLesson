@@ -28,8 +28,19 @@ sampler_state
 };
 
 //ハンズオン 3-1
-
+Texture g_normalTexture;
+sampler g_normalMapSampler = 
+sampler_state
+{
+	Texture = <g_normalTexture>;
+    MipFilter = LINEAR;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
+    AddressU = Wrap;
+	AddressV = Wrap;
+};
 //ハンズオン 3-2
+int g_isHasNormalMap;			//法線マップ保持している？
 
 /*!
  * @brief	入力頂点
@@ -131,7 +142,29 @@ float4 PSMain( VS_OUTPUT In ) : COLOR
 	
 	float3 normal = In.Normal;
 	//ハンズオン 3-3
-
+	if( g_isHasNormalMap == 1 ){
+		//法線マップがある。
+		//法線マップから、
+		//タンジェントスペース法線を取得。
+		float3 localNormal = tex2D( 
+			g_normalMapSampler, 
+			In.Tex0
+		);
+		//-1.0～1.0の範囲にマッピングする。
+		localNormal = (localNormal * 2.0f)- 1.0f;
+		//法線とタンジェントから従法線を求める
+		float3 tangent = normalize(In.Tangent);
+		float3 biNormal = cross( 
+			tangent, 
+			normal 
+		);
+		//従法線を正規化する
+		biNormal = normalize(biNormal);
+		//ワールド空間の法線を求める。
+		normal = tangent * localNormal.x
+				+ biNormal * localNormal.y
+				+ normal * localNormal.z;
+	}
 	float4 lig = DiffuseLight(normal);
 	color *= lig;
 	

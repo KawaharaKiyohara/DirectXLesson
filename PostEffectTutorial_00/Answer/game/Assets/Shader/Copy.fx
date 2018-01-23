@@ -33,6 +33,7 @@ VS_OUTPUT VSMain( VS_INPUT In )
 float4 PSMain( VS_OUTPUT In ) : COLOR0
 {
 	float4 color = tex2D( TextureSampler, In.uv );
+	color *= 1.5f;
 	return color;
 }
 

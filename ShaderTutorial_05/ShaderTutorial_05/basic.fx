@@ -69,7 +69,10 @@ float4 PSMain( VS_OUTPUT In ) : COLOR
 	//ライトのカラーはg_diffuseLightColor[0].xyzとなる。
 	//内積はdot関数、最大値を取得する関数はmax関数になる。
 	//関数の使い方はインターネットなどでヘルプを調べるなどして自力で調べてみてください。
-	
+	lig.xyz += max( 
+				0.0f, 
+				dot( -g_diffuseLightDirection[0].xyz, In.normal.xyz )
+			 ) * g_diffuseLightColor[0].xyz;
 	float4 color = tex2D( g_diffuseTextureSampler, In.uv );
 	color.xyz *= lig;
 	return color;

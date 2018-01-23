@@ -309,7 +309,7 @@ VOID Render()
 		g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
 		g_pEffect->BeginPass(0);
 
-		//定数レジスタに設定するカラー。
+		//定数レジスタに設定するカラー
 		D3DXVECTOR4 color( 1.0f, 0.0f, 0.0f, 1.0f);
 		static float angleX = 0.0f;
 		static float angleY = 0.0f;

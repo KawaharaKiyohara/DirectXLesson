@@ -209,13 +209,15 @@ VOID Render()
 			D3DXMatrixRotationY(&g_worldMatrix, renderCount / 50.0f);
 			D3DXMatrixTranslation(&matTrans, trans[i].x, trans[i].y, trans[i].z);
 			g_worldMatrix = g_worldMatrix * matTrans;
+			
+			//WVP行列を計算する。
+			D3DXMATRIX mWVP;
+			mWVP = g_worldMatrix 
+				* g_viewMatrix 
+				* g_projectionMatrix;
+			//作成したWVP行列をGPUに転送する。
+			g_pEffect->SetMatrix("g_mWVP", &mWVP);
 
-			//ワールド行列の転送。
-			g_pEffect->SetMatrix("g_worldMatrix", &g_worldMatrix);
-			//ビュー行列の転送。
-			g_pEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
-			//プロジェクション行列の転送。
-			g_pEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
 			g_pEffect->SetVector("g_color", &colorTbl[i]);
 
 			g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。

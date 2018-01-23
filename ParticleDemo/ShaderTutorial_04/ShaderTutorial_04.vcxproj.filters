@@ -54,4 +54,9 @@
       <Filter>ソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="star.png">
+      <Filter>ソース ファイル</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

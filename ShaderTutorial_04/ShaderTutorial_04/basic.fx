@@ -32,6 +32,9 @@ struct VS_OUTPUT{
 
 };
 
+float g_uvScroll;		//シェーダー定数。
+float g_alpha;			//α値のシェーダー定数。
+
 /*!
  *@brief	頂点シェーダー。
  */
@@ -52,9 +55,11 @@ VS_OUTPUT VSMain( VS_INPUT In )
  */
 float4 PSMain( VS_OUTPUT In ) : COLOR
 {
-	float4 texCol = tex2D( g_diffuseTextureSampler, In.uv );
-	float t = length(texCol);
-	return tex2D( g_diffuseTextureSampler, In.uv ) ;
+	float2 uv = In.uv;
+	uv.x += g_uvScroll;
+	float4 texColor = tex2D( g_diffuseTextureSampler, uv );
+	texColor.a = g_alpha;
+	return texColor ;
 }
 
 technique SkinModel

@@ -12,5 +12,6 @@ private:
 	SkinModelData modelData;
 	Animation animation;
 	//ƒnƒ“ƒYƒIƒ“ 1-1
+	LPDIRECT3DTEXTURE9 normalMap = NULL;
 };
 

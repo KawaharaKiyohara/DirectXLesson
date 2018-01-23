@@ -100,9 +100,18 @@ float4 PSMain( VS_OUTPUT In ) : COLOR
 	float4 lig = 0.0f;
 	float3 normal = normalize(In.normal);				//法線が線形補間されているので、大きさ1ではなくなっていてマッハバンドが目立つので正規化する。
 	lig.xyz = CalcDiffuse( In.normal );					//ディフューズライトを計算。
-	lig.xyz += CalcSpecular( In.worldPos, normal );		//スペキュラライトを計算。
+	/////////////////////////////////////////
+	//ここからスペキュラライトの計算。
+	/////////////////////////////////////////
+	float3 spec = 0.0f;
+	float3 toEyeDir = normalize(g_eyePos - worldPos);
+	float3 R = -toEyeDir + 2.0f * dot(normal, toEyeDir) * normal;
+	float3 L = -g_diffuseLightDirection[0].xyz;
+	spec = pow(max(0.0f, dot(L,R)), 5);
 	
+	lig.xyz += spec;
 	lig += g_ambientLight;
+	
 	float4 color = tex2D( g_diffuseTextureSampler, In.uv );
 	color.xyz *= lig;
 	return color;

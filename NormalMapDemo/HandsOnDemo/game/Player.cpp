@@ -10,6 +10,10 @@ Player::Player()
 Player::~Player()
 {
 	//ハンズオン 1-3
+	if (normalMap != NULL) {
+		//normalMapがNULLじゃないならロードされているので開放する。
+		normalMap->Release();
+	}
 }
 void Player::Init()
 {
@@ -21,6 +25,14 @@ void Player::Init()
 	model.SetLight(game->GetDefaultLight());
 
 	//ハンズオン 1-2
+	D3DXCreateTextureFromFileA(
+		g_pd3dDevice,
+		"Assets/model/utc_nomal.tga",
+		&normalMap
+	);
+	//モデルに法線マップを設定。
+	model.SetNormalMap(normalMap);
+	
 	animation.PlayAnimation(0);
 }
 void Player::Update()

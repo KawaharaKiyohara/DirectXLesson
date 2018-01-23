@@ -21,7 +21,15 @@ Bloom::Bloom()
 	effect = g_effectManager->LoadEffect("Assets/Shader/bloom.fx");
 	
 	//HandOn-2 輝度抽出用のレンダリングターゲットを作成する。
-
+	luminanceRenderTarget.Create(
+		FRAME_BUFFER_WITDH,
+		FRAME_BUFFER_HEIGHT,
+		1,
+		D3DFMT_A16B16G16R16F,
+		D3DFMT_D16,				//使わないので16bit。本来は作成する必要もない。
+		D3DMULTISAMPLE_NONE,	//マルチサンプリングの種類。今回はマルチサンプリングは行わないのでD3DMULTISAMPLE_NONEでいい。
+		0						//マルチサンプリングの品質レベル。今回はマルチサンプリングは行わないので0でいい。
+	);
 	//ブラーをかけるためのダウンサンプリング用のレンダリングターゲットを作成。
 	//横ブラー用。
 	downSamplingRenderTarget[0].Create(
@@ -54,11 +62,14 @@ void Bloom::Render()
 	// Zテストで失敗してもらったら困るので、Zテストは無効にしておく。
 	g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
 	//まずは輝度を抽出する。
-	/*{
+	{
 		// αブレンドもいらない。
 		g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 		//HandsOn-3 輝度抽出用のレンダリングターゲットに変更する。
-
+		g_pd3dDevice->SetRenderTarget(
+			0, 
+			luminanceRenderTarget.GetRenderTarget()
+		);
 		//黒でクリア。
 		g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 		// 輝度抽出テクニックをセット。
@@ -75,15 +86,19 @@ void Bloom::Render()
 		effect->End();
 		// 変更したレンダリングステートを元に戻す。
 		g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	}*/
+	}
 
 	//ガウスブラーで使う重みテーブルを更新。
 	UpdateWeight(25.0f);
 	//輝度を抽出したテクスチャをXブラー
-	/*{
+	{
 		//HandsOn-4 ダウンサンプリング用のレンダリングターゲットを追加。
-		
+		g_pd3dDevice->SetRenderTarget(
+			0,
+			downSamplingRenderTarget[0].GetRenderTarget()
+		);
 		//HandsOn-5 横ブラー用のシェーダーテクニックを設定する。
+		effect->SetTechnique("XBlur");
 
 		effect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
 		effect->BeginPass(0);
@@ -105,13 +120,17 @@ void Bloom::Render()
 
 		effect->EndPass();
 		effect->End();
-	}*/
+	}
 	//輝度を抽出したテクスチャをYブラー
-	/*{
+	{
 		//HandsOn-6 ダウンサンプリング用のレンダリングターゲットを追加。
-		
+		g_pd3dDevice->SetRenderTarget(
+			0,
+			downSamplingRenderTarget[1].GetRenderTarget()
+		);
 
 		//HandsOn-7 縦ブラー用のシェーダーテクニックを設定する。
+		effect->SetTechnique("YBlur");
 
 		effect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
 		effect->BeginPass(0);
@@ -133,14 +152,14 @@ void Bloom::Render()
 
 		effect->EndPass();
 		effect->End();
-	}*/
+	}
 
 	//メインのレンダリングターゲットに戻す。
 	g_pd3dDevice->SetRenderTarget(0, mainRenderTarget->GetRenderTarget());
 	g_pd3dDevice->SetDepthStencilSurface(mainRenderTarget->GetDepthStencilBuffer());
 
 
-	/*{
+	{
 		//最終合成。
 		float offset[] = {
 			0.5f / downSamplingRenderTarget[1].GetWidth() ,
@@ -165,7 +184,7 @@ void Bloom::Render()
 		g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 		g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	}*/
+	}
 
 	g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 }

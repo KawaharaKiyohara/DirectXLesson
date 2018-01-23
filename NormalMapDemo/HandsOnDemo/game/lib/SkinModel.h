@@ -42,6 +42,10 @@ public:
 		this->light = light;
 	}
 	//ハンズオン 2-2
+	void SetNormalMap(LPDIRECT3DTEXTURE9 normalMap)
+	{
+		this->normalMap = normalMap;
+	}
 private:
 	D3DXMATRIX			worldMatrix;	//!<ワールド行列。
 	D3DXMATRIX			rotationMatrix;	//!<回転行列。
@@ -50,5 +54,6 @@ private:
 	Animation			animation;		//!<アニメーション。
 	Light*				light;			//!<ライト。
 	//ハンズオン 2-1
+	LPDIRECT3DTEXTURE9	normalMap = NULL;	//!<法線マップ。
 	
 };

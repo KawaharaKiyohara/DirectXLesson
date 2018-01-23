@@ -274,6 +274,7 @@ VOID Render()
 		
 		//トラをオフスクリーンレンダリング。
 		{
+			//①　ここで、レンダリングターゲットを切り替える。
 			//書き込み先を変更したのでクリア。
 			g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 0);
 			
@@ -309,6 +310,8 @@ VOID Render()
 		}	
 		//オフスクリーンレンダリングした絵を板ポリに描画する。
 		{
+			//②レンダリングターゲットをもとに戻す。
+
 			g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 		
 			D3DXMATRIXA16 matWorld;

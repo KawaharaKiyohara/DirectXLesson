@@ -137,40 +137,83 @@ VOID Render()
 	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
 	{
 		// Turn on the zbuffer
-		g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
-		//半透明合成の設定。
-		g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		renderCount++;
-		D3DXMATRIXA16 matWorld;
-    	D3DXMatrixRotationY( &g_worldMatrix, renderCount / 500.0f ); 
-    	
-		
-		//シェーダー適用開始。
-		g_pEffect->SetTechnique("SkinModel");
-		g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
-		g_pEffect->BeginPass(0);
+		{
+			//通常の虎の描画。
+			g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+			g_pd3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
+			//半透明合成の設定。
+			g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+			g_pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+			g_pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+			renderCount++;
+			D3DXMATRIXA16 matWorld;
+			D3DXMatrixRotationY(&g_worldMatrix, renderCount / 500.0f);
 
-		//定数レジスタに設定するカラー。
-		D3DXVECTOR4 color( 1.0f, 0.0f, 0.0f, 1.0f);
-		//ワールド行列の転送。
-		g_pEffect->SetMatrix("g_worldMatrix", &g_worldMatrix);
-		//ビュー行列の転送。
-		g_pEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
-		//プロジェクション行列の転送。
-		g_pEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
-		g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
-		
-		// Meshes are divided into subsets, one for each material. Render them in
-        // a loop
-        for( DWORD i = 0; i < g_dwNumMaterials; i++ )
-        {
-			g_pEffect->SetTexture("g_diffuseTexture", g_pMeshTextures[i]);
-            // Draw the mesh subset
-            g_pMesh->DrawSubset( i );
-        }
-        
+
+			//シェーダー適用開始。
+			g_pEffect->SetTechnique("SkinModel");
+			g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
+			g_pEffect->BeginPass(0);
+
+			//定数レジスタに設定するカラー。
+			D3DXVECTOR4 color(1.0f, 0.0f, 0.0f, 1.0f);
+			//ワールド行列の転送。
+			g_pEffect->SetMatrix("g_worldMatrix", &g_worldMatrix);
+			//ビュー行列の転送。
+			g_pEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
+			//プロジェクション行列の転送。
+			g_pEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
+			g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
+
+			// Meshes are divided into subsets, one for each material. Render them in
+			// a loop
+			for (DWORD i = 0; i < g_dwNumMaterials; i++)
+			{
+				g_pEffect->SetTexture("g_diffuseTexture", g_pMeshTextures[i]);
+				// Draw the mesh subset
+				g_pMesh->DrawSubset(i);
+			}
+		}
+		g_pEffect->EndPass();
+		g_pEffect->End();
+		{
+			//灰色の虎。
+			g_pd3dDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_GREATER);
+
+			//シェーダー適用開始。
+			g_pEffect->SetTechnique("Hoge");
+			g_pEffect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
+			g_pEffect->BeginPass(0);
+
+			//定数レジスタに設定するカラー。
+			D3DXVECTOR4 color(1.0f, 0.0f, 0.0f, 1.0f);
+			static float x = 0.0f;;
+			D3DXMATRIX mWorld = g_worldMatrix;
+			if (GetAsyncKeyState(VK_UP) ){
+				x += 0.1f;
+				
+			}
+			else if (GetAsyncKeyState(VK_DOWN)) {
+				x -= 0.1f;
+			}
+			mWorld.m[3][2] += x;
+			//ワールド行列の転送。
+			g_pEffect->SetMatrix("g_worldMatrix", &mWorld);
+			//ビュー行列の転送。
+			g_pEffect->SetMatrix("g_viewMatrix", &g_viewMatrix);
+			//プロジェクション行列の転送。
+			g_pEffect->SetMatrix("g_projectionMatrix", &g_projectionMatrix);
+			g_pEffect->CommitChanges();						//この関数を呼び出すことで、データの転送が確定する。描画を行う前に一回だけ呼び出す。
+
+															// Meshes are divided into subsets, one for each material. Render them in
+															// a loop
+			for (DWORD i = 0; i < g_dwNumMaterials; i++)
+			{
+				g_pEffect->SetTexture("g_diffuseTexture", g_pMeshTextures[i]);
+				// Draw the mesh subset
+				g_pMesh->DrawSubset(i);
+			}
+		}
 		g_pEffect->EndPass();
 		g_pEffect->End();
 

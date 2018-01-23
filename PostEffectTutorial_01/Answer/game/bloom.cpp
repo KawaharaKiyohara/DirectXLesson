@@ -32,7 +32,7 @@ Bloom::Bloom()
 	//ブラーをかけるためのダウンサンプリング用のレンダリングターゲットを作成。
 	//横ブラー用。
 	downSamplingRenderTarget[0].Create(
-		FRAME_BUFFER_WITDH >> 1,	//横の解像度をフレームバッファの半分にする。
+		FRAME_BUFFER_WITDH / 2,	//横の解像度をフレームバッファの半分にする。
 		FRAME_BUFFER_HEIGHT,
 		1,
 		D3DFMT_A16B16G16R16F,	//ここも浮動小数点バッファにする。
@@ -42,8 +42,8 @@ Bloom::Bloom()
 	);
 	//縦ブラー用。
 	downSamplingRenderTarget[1].Create(
-		FRAME_BUFFER_WITDH >> 1,	//縦と横の解像度をフレームバッファの半分にする。
-		FRAME_BUFFER_HEIGHT >> 1,
+		FRAME_BUFFER_WITDH / 2,	//縦と横の解像度をフレームバッファの半分にする。
+		FRAME_BUFFER_HEIGHT / 2,
 		1,
 		D3DFMT_A16B16G16R16F,	//ここも浮動小数点バッファにする。
 		D3DFMT_D16,				//使わないので16bit。本来は作成する必要もない。
@@ -86,10 +86,13 @@ void Bloom::Render()
 	}
 
 	//ガウスブラーで使う重みテーブルを更新。
-	UpdateWeight(25.0f);
+	UpdateWeight(100.0f);
 	//輝度を抽出したテクスチャをXブラー
 	{
-		g_pd3dDevice->SetRenderTarget(0, downSamplingRenderTarget[0].GetRenderTarget());
+		g_pd3dDevice->SetRenderTarget(
+			0, 
+			downSamplingRenderTarget[0].GetRenderTarget()
+		);
 		
 		effect->SetTechnique("XBlur");
 		effect->Begin(NULL, D3DXFX_DONOTSAVESHADERSTATE);
