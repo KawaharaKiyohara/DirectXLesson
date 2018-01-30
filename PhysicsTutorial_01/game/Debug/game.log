@@ -1,0 +1,4 @@
+﻿  Door.cpp
+c:\github\directxlesson\physicstutorial_01\game\door.cpp(57): warning C4305: '引数': 'double' から 'btScalar' へ切り詰めます。
+  game.vcxproj -> C:\GitHub\DirectXLesson\PhysicsTutorial_01\Debug\game.exe
+  game.vcxproj -> C:\GitHub\DirectXLesson\PhysicsTutorial_01\Debug\game.pdb (Full PDB)
